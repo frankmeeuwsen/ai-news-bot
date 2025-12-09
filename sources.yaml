@@ -31,6 +31,35 @@ international:
   Robotics Business Review: "https://www.roboticsbusinessreview.com/feed/"
   Autonomous Vehicle News: "https://www.autonomousvehicleinternational.com/feed"
 
+# Open Source, LLM Development & Technical Analysis
+  # Crucial for Open Source models & demos
+  Hugging Face Blog: "https://huggingface.co/blog/feed.xml"
+  # The creator of Claude - Major LLM player missing from your list
+  Anthropic Engineering News: "https://raw.githubusercontent.com/conoro/anthropic-engineering-rss-feed/main/anthropic_engineering_rss.xml"
+  # Focus on Open Source Image Gen (Stable Diffusion)
+  Stability AI: "https://stability.ai/news?format=rss"
+  # Technical deep dives into LLMs and engineering (Simon Willison is a must-read)
+  Simon Willison’s Weblog: "https://simonwillison.net/atom/tags/ai/"
+  # Deep technical analysis of LLM alignment and open source (Nathan Lambert)
+  Interconnects: "https://www.interconnects.ai/feed"
+  # Focus on building with LLMs (Frameworks)
+  LangChain Blog: "https://blog.langchain.dev/rss/"
+  # Hardware & Infrastructure driving LLMs
+  NVIDIA Blog (AI Category): "https://blogs.nvidia.com/category/deep-learning/feed/"
+# AI for Creativity, Work & Culture
+  # Prof. Ethan Mollick - The best source on how AI changes actual work/education
+  One Useful Thing: "https://www.oneusefulthing.org/feed"
+  # Focus on Game Dev & 3D Art creation with AI
+  80 Level (AI Section): "https://80.lv/rss/tag/ai"
+  # Digital Art & Design news (often covers Firefly/Midjourney tools)
+  Creative Bloq: "https://www.creativebloq.com/feeds/all"
+  # Photography & AI Image generation news
+  PetaPixel: "https://petapixel.com/feed/"
+  # Highly regarded European tech news, very good AI analysis
+  The Decoder: "https://the-decoder.com/feed/"
+  # Academic updates made readable (often covers creative papers)
+  MarkTechPost: "https://www.marktechpost.com/feed/"
+
 # Language-specific sources
 languages:
   # Chinese (zh)
@@ -118,7 +147,11 @@ languages:
     "AG Connect": "https://www.agconnect.nl/rss"
     "Het Financieele Dagblad": "https://fd.nl/?rss"
     "Google News AI (NL)": "https://news.google.com/rss/search?q=kunstmatige+intelligentie&hl=nl&gl=NL&ceid=NL:nl"
-
+    "Emerce": "https://www.emerce.nl/feed"
+    "Marketingfacts": "https://www.marketingfacts.nl/feed/"
+    "DailyAI (NL)": "https://dailyai.com/nl/feed/"
+    "MT/Sprout (Tech)": "https://mtsprout.nl/tech/feed"
+    "Linux Magazine (NL)": "https://linuxmag.nl/feed/"
   # Arabic (ar)
   ar:
     "Arageek": "https://www.arageek.com/feed"

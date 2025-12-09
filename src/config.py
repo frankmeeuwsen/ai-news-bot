@@ -165,6 +165,65 @@ class Config:
         """Maximum news items to fetch per source"""
         return self.config_data.get("news", {}).get("max_items_per_source", 5)
 
+    # Database configuration properties
+    @property
+    def database_type(self) -> str:
+        """Get database type (sqlite or postgresql)"""
+        return self.config_data.get("database", {}).get("type", "sqlite").lower()
+
+    @property
+    def database_url(self) -> str:
+        """
+        Get SQLAlchemy database URL.
+
+        Returns:
+            Database connection URL
+        """
+        db_type = self.database_type
+
+        if db_type == "sqlite":
+            # Get SQLite path from config
+            db_path = self.config_data.get("database", {}).get("sqlite", {}).get("path", "data/newsbot.db")
+
+            # Convert relative path to absolute
+            if not os.path.isabs(db_path):
+                project_root = Path(__file__).parent.parent
+                db_path = project_root / db_path
+
+            return f"sqlite:///{db_path}"
+
+        elif db_type == "postgresql":
+            # Get PostgreSQL config
+            pg_config = self.config_data.get("database", {}).get("postgresql", {})
+            host = pg_config.get("host", "localhost")
+            port = pg_config.get("port", 5432)
+            database = pg_config.get("database", "ai_news_bot")
+
+            # Get credentials from environment
+            user = os.getenv("POSTGRES_USER", "postgres")
+            password = os.getenv("POSTGRES_PASSWORD", "")
+
+            return f"postgresql://{user}:{password}@{host}:{port}/{database}"
+
+        else:
+            logger.warning(f"Unknown database type '{db_type}', defaulting to SQLite")
+            return "sqlite:///data/newsbot.db"
+
+    @property
+    def cache_enabled(self) -> bool:
+        """Check if caching is enabled"""
+        return self.config_data.get("database", {}).get("cache", {}).get("enabled", True)
+
+    @property
+    def cache_ttl_hours(self) -> int:
+        """Get cache TTL in hours"""
+        return self.config_data.get("database", {}).get("cache", {}).get("ttl_hours", 36)
+
+    @property
+    def cache_deduplication(self) -> bool:
+        """Check if deduplication is enabled"""
+        return self.config_data.get("database", {}).get("cache", {}).get("deduplication", True)
+
     @property
     def llm_provider(self) -> str:
         """Get the LLM provider to use (claude or deepseek)"""

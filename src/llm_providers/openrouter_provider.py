@@ -53,8 +53,9 @@ class OpenRouterProvider(BaseLLMProvider):
         messages: List[Dict[str, str]],
         max_tokens: int = 2000,
         temperature: float = 1.0,
+        return_usage: bool = False,
         **kwargs
-    ) -> str:
+    ) -> str | Dict[str, Any]:
         """
         Generate a response using OpenRouter API.
 
@@ -62,10 +63,11 @@ class OpenRouterProvider(BaseLLMProvider):
             messages: List of message dicts with 'role' and 'content' keys
             max_tokens: Maximum tokens in response
             temperature: Sampling temperature
+            return_usage: If True, return dict met text + usage data
             **kwargs: Additional OpenRouter-specific parameters
 
         Returns:
-            Generated text response
+            Generated text response, of dict met 'text' en 'usage' keys
 
         Raises:
             Exception: If API call fails
@@ -82,14 +84,57 @@ class OpenRouterProvider(BaseLLMProvider):
             )
 
             # Extract text from response
-            if response.choices and len(response.choices) > 0:
-                return response.choices[0].message.content
+            if not response.choices or len(response.choices) == 0:
+                raise Exception("No response received from OpenRouter")
 
-            raise Exception("No response received from OpenRouter")
+            text = response.choices[0].message.content
+
+            # Return with usage data als gevraagd
+            if return_usage:
+                usage = {
+                    'prompt_tokens': response.usage.prompt_tokens if response.usage else 0,
+                    'completion_tokens': response.usage.completion_tokens if response.usage else 0,
+                    'total_tokens': response.usage.total_tokens if response.usage else 0,
+                }
+
+                # OpenRouter specific: calculate cost based on model pricing
+                # Note: Echte cost data komt van OpenRouter headers, maar die zijn niet
+                # altijd beschikbaar in responses. We schatten op basis van tokens.
+                cost = self._estimate_cost(usage['total_tokens'])
+
+                return {
+                    'text': text,
+                    'usage': usage,
+                    'cost': cost,
+                    'model': self.model
+                }
+
+            return text
 
         except Exception as e:
             logger.error(f"OpenRouter API error: {str(e)}", exc_info=True)
             raise
+
+    def _estimate_cost(self, total_tokens: int) -> float:
+        """
+        Estimate cost based on tokens.
+
+        OpenRouter pricing varies per model. Voor Claude Sonnet 4.5:
+        - Input: $3.00 / 1M tokens
+        - Output: $15.00 / 1M tokens
+
+        We gebruiken gemiddelde van $9 / 1M voor simpele schatting.
+
+        Args:
+            total_tokens: Total token count
+
+        Returns:
+            Estimated cost in dollars
+        """
+        # Gemiddelde cost per 1M tokens (rough estimate)
+        cost_per_million = 9.0
+
+        return (total_tokens / 1_000_000) * cost_per_million
 
     def generate_with_tools(
         self,

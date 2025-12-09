@@ -9,6 +9,7 @@ from datetime import datetime
 from src.config import Config
 from src.logger import setup_logger
 from src.news import NewsGenerator
+from src.database import init_db
 from src.notifiers import (
     EmailNotifier,
     WebhookNotifier,
@@ -43,6 +44,12 @@ def main():
         logger.info(f"Languages: {', '.join(languages)}")
         logger.info(f"Web Search: {config.enable_web_search}")
         logger.info("=" * 60)
+
+        # Initialize database for caching and tracking
+        logger.info("Initializing database...")
+        db_url = config.database_url
+        init_db(db_url=db_url)
+        logger.info(f"Database initialized: {config.database_type}")
 
         # Initialize news generator once
         logger.info("Initializing news generator...")

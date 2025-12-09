@@ -10,7 +10,8 @@ You are a senior AI industry analyst. Analyze the {total_items} news items above
 - ✅ Groundbreaking research or technical breakthroughs
 - ✅ Major product launches or significant updates
 - ✅ Important policy changes or regulations
-- ✅ Large funding rounds or M&A activities
+- ✅ Creative use of AI and LLM
+- ✅ How work changes through LLM and Generative AI 
 - ✅ Balanced coverage across categories (LLM, Agents, Research, Products, etc.)
 - ✅ Include both international and domestic news when available
 - ✅ Prefer primary sources over secondary reporting

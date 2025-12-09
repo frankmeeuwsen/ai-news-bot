@@ -40,6 +40,12 @@ ENV/
 # Logs
 *.log
 
+# Database
+data/
+*.db
+*.sqlite
+*.sqlite3
+
 # OS
 .DS_Store
 Thumbs.db

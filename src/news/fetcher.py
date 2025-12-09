@@ -1,13 +1,20 @@
 """
 News fetcher module - Fetches real-time AI news from various sources
+
+Supports:
+- RSS feed fetching met caching
+- Deduplicatie op basis van GUID/link
+- Database persistentie voor token besparing
 """
 import requests
 import yaml
 import os
 from typing import List, Dict, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
+from sqlalchemy import and_, or_
 from ..logger import setup_logger
+from ..database import NewsItem, RSSHealth, session_scope
 
 
 logger = setup_logger(__name__)
@@ -16,15 +23,34 @@ logger = setup_logger(__name__)
 class NewsFetcher:
     """Fetch real-time AI news from RSS feeds and news APIs"""
 
-    def __init__(self, sources_file: str = "sources.yaml"):
+    def __init__(
+        self,
+        sources_file: str = "sources.yaml",
+        cache_enabled: bool = True,
+        cache_ttl_hours: int = 36,
+        deduplication: bool = True
+    ):
         """
         Initialize the news fetcher.
 
         Args:
             sources_file: Path to YAML file containing RSS feed sources
+            cache_enabled: Enable database caching (hergebruik recente items)
+            cache_ttl_hours: Cache TTL in hours (default: 36 uur)
+            deduplication: Enable deduplicatie op basis van GUID/link
         """
         # Load sources from YAML file
         self._load_sources(sources_file)
+
+        # Cache instellingen
+        self.cache_enabled = cache_enabled
+        self.cache_ttl_hours = cache_ttl_hours
+        self.deduplication = deduplication
+
+        logger.info(
+            f"NewsFetcher initialized (cache: {cache_enabled}, "
+            f"ttl: {cache_ttl_hours}h, dedup: {deduplication})"
+        )
 
     def _load_sources(self, sources_file: str):
         """
@@ -85,7 +111,7 @@ class NewsFetcher:
             max_items: Maximum number of items to fetch
 
         Returns:
-            List of news items with title, link, description, and published date
+            List of news items with title, link, description, guid, and published date
         """
         try:
             logger.info(f"Fetching RSS feed: {feed_url}")
@@ -107,12 +133,14 @@ class NewsFetcher:
                 for item in news_items:
                     title = item.find('title')
                     link = item.find('link')
+                    guid = item.find('guid')
                     description = item.find('description')
                     pub_date = item.find('pubDate')
 
                     items.append({
                         'title': title.text if title is not None else '',
                         'link': link.text if link is not None else '',
+                        'guid': guid.text if guid is not None else None,  # GUID voor deduplicatie
                         'description': self._clean_html(description.text if description is not None else ''),
                         'published': pub_date.text if pub_date is not None else '',
                     })
@@ -123,12 +151,14 @@ class NewsFetcher:
                 for entry in entries:
                     title = entry.find('atom:title', namespace)
                     link = entry.find('atom:link', namespace)
+                    guid = entry.find('atom:id', namespace)  # Atom gebruikt 'id' als GUID
                     summary = entry.find('atom:summary', namespace)
                     updated = entry.find('atom:updated', namespace)
 
                     items.append({
                         'title': title.text if title is not None else '',
                         'link': link.get('href', '') if link is not None else '',
+                        'guid': guid.text if guid is not None else None,
                         'description': self._clean_html(summary.text if summary is not None else ''),
                         'published': updated.text if updated is not None else '',
                     })
@@ -146,13 +176,206 @@ class NewsFetcher:
         clean = re.compile('<.*?>')
         return re.sub(clean, '', text).strip()
 
+    def _parse_published_date(self, date_str: str) -> Optional[datetime]:
+        """
+        Parse RSS date string naar datetime object.
+
+        Args:
+            date_str: Date string uit RSS feed
+
+        Returns:
+            datetime object of None als parsing faalt
+        """
+        if not date_str:
+            return None
+
+        # Probeer verschillende RSS date formaten
+        from email.utils import parsedate_to_datetime
+        try:
+            return parsedate_to_datetime(date_str)
+        except Exception as e:
+            logger.debug(f"Could not parse date '{date_str}': {e}")
+            return None
+
+    def _get_cached_items(
+        self,
+        source: str,
+        language: str,
+        category: str
+    ) -> List[NewsItem]:
+        """
+        Haal gecachte items op uit database binnen TTL.
+
+        Args:
+            source: Source naam (bijv. "TechCrunch")
+            language: Taal code (en/nl/etc.)
+            category: Category (international/domestic)
+
+        Returns:
+            List van NewsItem objecten uit cache
+        """
+        if not self.cache_enabled:
+            return []
+
+        # Bereken cache cutoff tijd
+        cutoff_time = datetime.utcnow() - timedelta(hours=self.cache_ttl_hours)
+
+        try:
+            with session_scope() as session:
+                cached = session.query(NewsItem).filter(
+                    and_(
+                        NewsItem.source == source,
+                        NewsItem.language == language,
+                        NewsItem.category == category,
+                        NewsItem.fetched_at >= cutoff_time
+                    )
+                ).order_by(NewsItem.fetched_at.desc()).all()
+
+                # Detach from session (anders krijg je lazy loading errors)
+                session.expunge_all()
+
+                logger.debug(f"Found {len(cached)} cached items for {source} (lang={language})")
+                return cached
+
+        except Exception as e:
+            logger.error(f"Error fetching cached items: {e}", exc_info=True)
+            return []
+
+    def _save_news_item(
+        self,
+        item_data: Dict[str, str],
+        source: str,
+        language: str,
+        category: str
+    ) -> Optional[NewsItem]:
+        """
+        Sla nieuwsitem op in database (met deduplicatie check).
+
+        Args:
+            item_data: RSS item data (title, link, description, etc.)
+            source: Source naam
+            language: Taal code
+            category: Category
+
+        Returns:
+            NewsItem object of None als duplicaat
+        """
+        try:
+            with session_scope() as session:
+                # Check duplicaat op basis van GUID (primair) of link (fallback)
+                guid = item_data.get('guid')
+                link = item_data.get('link')
+
+                # Zoek bestaand item
+                existing = None
+                if self.deduplication:
+                    if guid:
+                        existing = session.query(NewsItem).filter_by(guid=guid).first()
+                    if not existing and link:
+                        existing = session.query(NewsItem).filter_by(link=link).first()
+
+                if existing:
+                    logger.debug(f"Skipping duplicate item: {item_data.get('title', '')[:50]}")
+                    return None
+
+                # Parse published date
+                published_at = self._parse_published_date(item_data.get('published', ''))
+
+                # Maak nieuw item
+                news_item = NewsItem(
+                    source=source,
+                    title=item_data['title'],
+                    link=link,
+                    guid=guid,
+                    description=item_data.get('description', ''),
+                    published_at=published_at,
+                    fetched_at=datetime.utcnow(),
+                    language=language,
+                    category=category,
+                    raw_data=item_data  # Bewaar volledige RSS entry
+                )
+
+                session.add(news_item)
+                session.flush()  # Get ID zonder te committen
+
+                # Detach van session
+                session.expunge(news_item)
+
+                logger.debug(f"Saved new item: {news_item.title[:50]}")
+                return news_item
+
+        except Exception as e:
+            logger.error(f"Error saving news item: {e}", exc_info=True)
+            return None
+
+    def _update_rss_health(self, source_name: str, feed_url: str, success: bool, error: str = None):
+        """
+        Update RSS feed health tracking in database.
+
+        Args:
+            source_name: Source naam
+            feed_url: RSS feed URL
+            success: Of fetch succesvol was
+            error: Error message (indien van toepassing)
+        """
+        try:
+            with session_scope() as session:
+                # Zoek of maak health record
+                health = session.query(RSSHealth).filter_by(source_name=source_name).first()
+
+                if not health:
+                    # Maak nieuw record met expliciete default waarden
+                    health = RSSHealth(
+                        source_name=source_name,
+                        feed_url=feed_url,
+                        total_fetches=0,
+                        total_failures=0,
+                        consecutive_fails=0,
+                        is_active=True
+                    )
+                    session.add(health)
+                    # Flush om defaults te initialiseren
+                    session.flush()
+
+                # Update metrics
+                health.total_fetches += 1
+
+                if success:
+                    health.last_success = datetime.utcnow()
+                    health.consecutive_fails = 0
+                else:
+                    health.last_failure = datetime.utcnow()
+                    health.consecutive_fails += 1
+                    health.total_failures += 1
+                    health.error_details = error
+
+                    # Auto-disable na 3 failures (zoals TODO vraagt)
+                    if health.consecutive_fails >= 3:
+                        health.is_active = False
+                        logger.warning(
+                            f"RSS feed '{source_name}' disabled after {health.consecutive_fails} "
+                            f"consecutive failures"
+                        )
+
+                logger.debug(f"Updated RSS health for {source_name} (success={success})")
+
+        except Exception as e:
+            logger.error(f"Error updating RSS health: {e}", exc_info=True)
+
     def fetch_recent_news(
         self,
         language: str = "en",
         max_items_per_source: int = 5
     ) -> Dict[str, List[Dict[str, str]]]:
         """
-        Fetch recent AI news from all configured sources.
+        Fetch recent AI news from all configured sources met caching support.
+
+        Workflow:
+        1. Check cache voor recente items (binnen TTL)
+        2. Fetch nieuwe items van RSS feeds
+        3. Sla nieuwe items op in database
+        4. Update RSS health tracking
+        5. Return gecombineerde resultaten
 
         Args:
             language: Language code for the response
@@ -168,12 +391,56 @@ class NewsFetcher:
             'domestic': []
         }
 
+        stats = {
+            'cached': 0,
+            'fetched': 0,
+            'duplicates': 0
+        }
+
         # Fetch international news
         for source_name, feed_url in self.rss_feeds.items():
-            items = self.fetch_rss_feed(feed_url, max_items_per_source)
-            for item in items:
-                item['source'] = source_name
-                all_news['international'].append(item)
+            # Check cache eerst
+            cached_items = self._get_cached_items(source_name, language, 'international')
+
+            if cached_items and len(cached_items) >= max_items_per_source:
+                # Gebruik cached items (converteren naar dict formaat)
+                logger.info(f"Using {len(cached_items[:max_items_per_source])} cached items for {source_name}")
+                for cached in cached_items[:max_items_per_source]:
+                    all_news['international'].append({
+                        'source': cached.source,
+                        'title': cached.title,
+                        'link': cached.link,
+                        'guid': cached.guid,
+                        'description': cached.description,
+                        'published': cached.published_at.isoformat() if cached.published_at else ''
+                    })
+                stats['cached'] += len(cached_items[:max_items_per_source])
+            else:
+                # Fetch van RSS feed
+                items = self.fetch_rss_feed(feed_url, max_items_per_source)
+
+                if items:
+                    # Update health: success
+                    self._update_rss_health(source_name, feed_url, success=True)
+
+                    # Sla nieuwe items op
+                    for item in items:
+                        saved_item = self._save_news_item(item, source_name, language, 'international')
+                        if saved_item:
+                            all_news['international'].append({
+                                'source': source_name,
+                                'title': item['title'],
+                                'link': item['link'],
+                                'guid': item.get('guid'),
+                                'description': item['description'],
+                                'published': item['published']
+                            })
+                            stats['fetched'] += 1
+                        else:
+                            stats['duplicates'] += 1
+                else:
+                    # Update health: failure
+                    self._update_rss_health(source_name, feed_url, success=False, error="No items fetched")
 
         # Fetch domestic news based on language
         language_feeds_map = {
@@ -194,17 +461,55 @@ class NewsFetcher:
         feeds = language_feeds_map.get(language)
         if not feeds:
             logger.warning(f"No domestic feeds configured for language: {language}, using international only")
-            return all_news
+        else:
+            for source_name, feed_url in feeds.items():
+                # Check cache
+                cached_items = self._get_cached_items(source_name, language, 'domestic')
 
-        for source_name, feed_url in feeds.items():
-            items = self.fetch_rss_feed(feed_url, max_items_per_source)
-            for item in items:
-                item['source'] = source_name
-                all_news['domestic'].append(item)
+                if cached_items and len(cached_items) >= max_items_per_source:
+                    # Gebruik cached items
+                    logger.info(f"Using {len(cached_items[:max_items_per_source])} cached items for {source_name}")
+                    for cached in cached_items[:max_items_per_source]:
+                        all_news['domestic'].append({
+                            'source': cached.source,
+                            'title': cached.title,
+                            'link': cached.link,
+                            'guid': cached.guid,
+                            'description': cached.description,
+                            'published': cached.published_at.isoformat() if cached.published_at else ''
+                        })
+                    stats['cached'] += len(cached_items[:max_items_per_source])
+                else:
+                    # Fetch van RSS feed
+                    items = self.fetch_rss_feed(feed_url, max_items_per_source)
+
+                    if items:
+                        # Update health: success
+                        self._update_rss_health(source_name, feed_url, success=True)
+
+                        # Sla nieuwe items op
+                        for item in items:
+                            saved_item = self._save_news_item(item, source_name, language, 'domestic')
+                            if saved_item:
+                                all_news['domestic'].append({
+                                    'source': source_name,
+                                    'title': item['title'],
+                                    'link': item['link'],
+                                    'guid': item.get('guid'),
+                                    'description': item['description'],
+                                    'published': item['published']
+                                })
+                                stats['fetched'] += 1
+                            else:
+                                stats['duplicates'] += 1
+                    else:
+                        # Update health: failure
+                        self._update_rss_health(source_name, feed_url, success=False, error="No items fetched")
 
         logger.info(
-            f"Fetched {len(all_news['international'])} international news items "
-            f"and {len(all_news['domestic'])} domestic ({language}) news items"
+            f"Fetched {len(all_news['international'])} international and "
+            f"{len(all_news['domestic'])} domestic ({language}) items "
+            f"(cached: {stats['cached']}, new: {stats['fetched']}, duplicates: {stats['duplicates']})"
         )
 
         return all_news

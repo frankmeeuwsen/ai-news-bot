@@ -29,6 +29,28 @@ news:
   # - prompts/stage1_selection.md: Stage 1 selection prompt
   # - prompts/stage2_summarization.md: Stage 2 summarization prompt
 
+database:
+  # Database type: sqlite, postgresql
+  type: sqlite
+
+  # SQLite configuration (default)
+  sqlite:
+    path: data/newsbot.db  # Relatief pad vanaf project root
+
+  # PostgreSQL configuration (voor toekomstig gebruik)
+  # postgresql:
+  #   host: localhost
+  #   port: 5432
+  #   database: ai_news_bot
+  #   # Username/password via environment variables:
+  #   # POSTGRES_USER, POSTGRES_PASSWORD
+
+  # Cache instellingen
+  cache:
+    enabled: false  # Disabled voor testrun - vers items ophalen
+    ttl_hours: 36  # Hergebruik items tot 36 uur oud
+    deduplication: true  # Skip duplicaten binnen run (op basis van GUID/link)
+
 logging:
   level: INFO
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

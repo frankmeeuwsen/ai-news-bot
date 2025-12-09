@@ -27,6 +27,19 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Restore database cache
+        uses: actions/cache@v4
+        with:
+          path: data/
+          key: newsbot-db-${{ github.run_id }}
+          restore-keys: |
+            newsbot-db-
+
+      - name: Create data directory for database
+        run: |
+          mkdir -p data
+          echo "Created data/ directory for SQLite database"
+
       - name: Generate and send AI news digest
         env:
           # All values come from GitHub Repository Secrets
@@ -80,11 +93,12 @@ jobs:
         run: |
           python main.py
 
-      - name: Upload logs on failure
+      - name: Upload logs and database on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: error-logs
+          name: error-logs-and-db
           path: |
             *.log
+            data/newsbot.db
           retention-days: 7

@@ -1,15 +1,26 @@
 """
 AI News Generator using configurable LLM providers
+
+Supports:
+- Two-stage prompt chaining (selection + summarization)
+- Database tracking van runs, selections en summaries
+- Kosten tracking per stage
 """
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 import json
 import re
 import os
+import hashlib
+from datetime import datetime
 from ..logger import setup_logger
 from ..config import LANGUAGE_NAMES
 from .web_search import WebSearchTool, get_search_tool_definition
 from .fetcher import NewsFetcher
 from ..llm_providers import get_llm_provider
+from ..database import (
+    NewsItem, NewsletterRun, AISelection, AISummary,
+    session_scope, get_session
+)
 
 
 logger = setup_logger(__name__)
@@ -90,6 +101,144 @@ class NewsGenerator:
         except Exception as e:
             logger.error(f"Error loading prompts: {e}")
             raise
+
+    def _hash_prompt(self, prompt: str) -> str:
+        """
+        Create hash van prompt voor A/B testing tracking.
+
+        Args:
+            prompt: Prompt text
+
+        Returns:
+            SHA256 hash (first 16 chars)
+        """
+        return hashlib.sha256(prompt.encode('utf-8')).hexdigest()[:16]
+
+    def _create_newsletter_run(
+        self,
+        language: str,
+        items_fetched: int
+    ) -> NewsletterRun:
+        """
+        Create newsletter run record in database.
+
+        Args:
+            language: Language code
+            items_fetched: Number of items fetched
+
+        Returns:
+            NewsletterRun object
+        """
+        try:
+            with session_scope() as session:
+                run = NewsletterRun(
+                    run_date=datetime.utcnow(),
+                    language=language,
+                    provider=self.provider.provider_name,
+                    model=self.provider.model,
+                    items_fetched=items_fetched,
+                    status='running'
+                )
+                session.add(run)
+                session.flush()
+
+                # Detach from session
+                run_id = run.id
+                session.expunge(run)
+
+            logger.info(f"Created newsletter run #{run_id} (lang={language}, provider={self.provider.provider_name})")
+            return run_id
+
+        except Exception as e:
+            logger.error(f"Error creating newsletter run: {e}", exc_info=True)
+            raise
+
+    def _update_run_stage1(
+        self,
+        run_id: int,
+        prompt_hash: str,
+        tokens: int,
+        cost: float,
+        items_selected: int
+    ):
+        """
+        Update newsletter run met Stage 1 metrics.
+
+        Args:
+            run_id: Newsletter run ID
+            prompt_hash: Hash van Stage 1 prompt
+            tokens: Token usage
+            cost: Cost in dollars
+            items_selected: Number of items selected
+        """
+        try:
+            with session_scope() as session:
+                run = session.query(NewsletterRun).get(run_id)
+                if run:
+                    run.stage1_prompt_hash = prompt_hash
+                    run.stage1_tokens = tokens
+                    run.stage1_cost = cost
+                    run.items_selected = items_selected
+
+            logger.debug(f"Updated run #{run_id} Stage 1: {tokens} tokens, ${cost:.4f}")
+
+        except Exception as e:
+            logger.error(f"Error updating run Stage 1: {e}", exc_info=True)
+
+    def _update_run_stage2(
+        self,
+        run_id: int,
+        prompt_hash: str,
+        tokens: int,
+        cost: float
+    ):
+        """
+        Update newsletter run met Stage 2 metrics.
+
+        Args:
+            run_id: Newsletter run ID
+            prompt_hash: Hash van Stage 2 prompt
+            tokens: Token usage
+            cost: Cost in dollars
+        """
+        try:
+            with session_scope() as session:
+                run = session.query(NewsletterRun).get(run_id)
+                if run:
+                    run.stage2_prompt_hash = prompt_hash
+                    run.stage2_tokens = tokens
+                    run.stage2_cost = cost
+
+                    # Update totals
+                    run.total_cost = (run.stage1_cost or 0) + (run.stage2_cost or 0)
+
+            logger.debug(f"Updated run #{run_id} Stage 2: {tokens} tokens, ${cost:.4f}")
+
+        except Exception as e:
+            logger.error(f"Error updating run Stage 2: {e}", exc_info=True)
+
+    def _complete_run(self, run_id: int, status: str, error: str = None, runtime: float = None):
+        """
+        Mark newsletter run als compleet.
+
+        Args:
+            run_id: Newsletter run ID
+            status: Status (success/failed)
+            error: Error message (indien gefaald)
+            runtime: Runtime in seconden
+        """
+        try:
+            with session_scope() as session:
+                run = session.query(NewsletterRun).get(run_id)
+                if run:
+                    run.status = status
+                    run.error_message = error
+                    run.runtime_seconds = runtime
+
+            logger.info(f"Completed run #{run_id}: status={status}, runtime={runtime:.2f}s")
+
+        except Exception as e:
+            logger.error(f"Error completing run: {e}", exc_info=True)
 
     def _format_news_with_ids(self, news_data: Dict) -> tuple:
         """

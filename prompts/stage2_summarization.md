@@ -19,6 +19,7 @@ Organize news items into relevant categories (use only categories that have news
 10. **Funding & Market Dynamics** - Investments, acquisitions, valuations
 11. **Policy & Regulation** - Government policies, AI governance, ethics
 12. **Open Source & Community** - Open source projects, community developments
+13. **Work and creativity** - Creative use of LLM in art, advertising and open source, LLM and the future of work
 
 ## CONTENT REQUIREMENTS:
 
@@ -72,13 +73,14 @@ For each news item, provide:
 
 ### Zhipu AI lanceert GLM-4.6V: open-source vision-language model met native tool-calling
 
-Chinees AI-model combineert tekst en beeld met tool-gebruik
+**Chinees AI-model combineert tekst en beeld met tool-gebruik**
+
 Het Chinese AI-bedrijf Zhipu AI lanceert GLM-4.6V, een nieuw open-source model dat zowel tekst als afbeeldingen begrijpt. Het bijzondere: dit model kan zelf tools gebruiken tijdens het werk. Denk aan zoekfuncties, grafiekherkenning of het uitsnijden van afbeeldingen.
 Het systeem komt in twee varianten. De grote versie (GLM-4.6V) draait op krachtige servers en verwerkt complexe opdrachten. De kleine versie (GLM-4.6V-Flash) werkt lokaal op je eigen apparatuur en reageert sneller.
-Wat maakt dit anders?
+**Wat maakt dit anders?**
 Tot nu toe had je vaak meerdere systemen nodig: één voor beeldherkenning, één voor tekstverwerking, en aparte tools voor specifieke taken. GLM-4.6V pakt dit allemaal in één keer aan. Je vraagt het model om bijvoorbeeld een grafiek te analyseren, en het gebruikt zelf de juiste tool om dat te doen.
 Het model haalt betere resultaten dan vorige versies op verschillende tests. Bij wiskundige vraagstukken scoort het 88,2 punten (de vorige versie haalde 84,6). Bij het navigeren door websites komt het uit op 81,0 punten, waar vergelijkbare modellen rond de 68,4 blijven steken.
-Beschikbaarheid
+**Beschikbaarheid**
 Zhipu AI geeft het model vrij onder een MIT-licentie. Dat betekent dat bedrijven het kunnen gebruiken zonder betaling voor de software zelf. Je betaalt alleen voor het rekenkracht: ongeveer 30 cent per miljoen tokens input en 90 cent per miljoen tokens output. Dat maakt het relatief goedkoop in vergelijking met vergelijkbare systemen.
 Het model werkt met teksten tot 128.000 tokens lang. Dat komt overeen met ongeveer 96.000 woorden of een heel boek.
 
