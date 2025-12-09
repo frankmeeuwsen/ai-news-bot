@@ -1,6 +1,6 @@
 # agents.md
 > Deze file wordt automatisch gesynchroniseerd met CLAUDE.md
-> Laatste sync: 2025-12-09 09:08
+> Laatste sync: 2025-12-10 23:45
 
 # AI News Bot - Claude Context
 
@@ -107,4 +107,86 @@ Een automatische nieuwsbot die RSS feeds verzamelt, cureert met AI (via OpenRout
 
 ---
 
-Last updated: 2025-12-09
+### 2025-12-10: Database Persistentie & GitHub Actions Workflow Fix
+
+**Context:** Database implementatie toegevoegd voor RSS caching, cost tracking en newsletter run logging. GitHub Actions workflow geanalyseerd en aangepast voor database support.
+
+**Database Implementatie:**
+
+1. **Database Module (src/database/)**
+   - `models.py`: 6 SQLAlchemy tabellen (NewsItem, NewsletterRun, AISelection, AISummary, RSSHealth, UserFeedback)
+   - `db.py`: DatabaseManager singleton met session handling
+   - `__init__.py`: Clean exports voor module imports
+
+2. **Database Features**
+   - 36-uur RSS feed cache met GUID/link deduplicatie
+   - RSS health monitoring met auto-disable na 3-5 failures
+   - Newsletter run tracking (provider, model, tokens, kosten)
+   - Separate cost tracking voor Stage 1 (selectie) en Stage 2 (samenvatting)
+   - Schema ready voor AI selection/summary logging en user feedback
+
+3. **Code Integratie**
+   - `main.py`: Database initialisatie toegevoegd via `init_db()` call
+   - `src/news/fetcher.py`: Cache check, item opslag, health tracking
+   - `src/news/generator.py`: Helper methods voor database tracking
+   - `src/news/generator_with_tracking.py`: Wrapper class voor volledige tracking
+   - `src/llm_providers/openrouter_provider.py`: Usage data return (`return_usage=True`)
+
+4. **Test Suite**
+   - `test_database.py`: Comprehensive database tests (CRUD, dedup, cache TTL, health)
+   - `test_fetch_only.py`: RSS fetch met caching zonder AI processing
+   - `test_tracking.py`: Newsletter run tracking zonder API calls
+   - `test_full_generation.py`: Volledige pipeline test met echte API calls
+   - `test_newsletter_output.md`: Voorbeeld gegenereerde Nederlandse nieuwsbrief
+
+**GitHub Actions Workflow Fix:**
+
+1. **Kritieke Problemen Geïdentificeerd**
+   - Database werd niet geïnitialiseerd in `main.py` (RuntimeError)
+   - `data/` directory bestond niet in GitHub runner (FileNotFoundError)
+   - NewsFetcher gebruikt altijd database calls (geen opt-out)
+   - RSS health tracking crasht zonder database
+
+2. **Workflow Aanpassingen (.github/workflows/daily-news.yml)**
+   - Database cache restore step toegevoegd (actions/cache@v4)
+   - `data/` directory aanmaken voor SQLite database
+   - Database upload bij failures voor debugging
+   - Cache key: `newsbot-db-${{ github.run_id }}` met fallback
+
+3. **Performance Impact**
+   - Eerste run: +0.5s database overhead
+   - Cached runs: -15-20s (geen RSS fetches)
+   - Broken feeds: -10-50s (auto-disabled, geen timeouts)
+
+**Test Resultaten:**
+
+- Run #2: 115 items (100% cache hit), 17 geselecteerd
+- Stage 1: 3.2s, Stage 2: 109s, totaal: 131s
+- 10 broken feeds auto-disabled
+- Professionele Nederlandse nieuwsbrief gegenereerd met categorisatie
+
+**Configuratie:**
+
+- Cache disabled in `config.yaml` voor testrun (vers items ophalen)
+- Database: SQLite (`data/newsbot.db`)
+- TTL: 36 uur (configureerbaar)
+- Deduplication: GUID → link fallback
+
+**Git Status:**
+
+- Commit: `dc33717` - feat: add database persistence with caching and cost tracking
+- 21 files changed: 2103 insertions, 30 deletions
+- Pushed naar: origin (dutchstack) en github
+- Working tree: clean
+- Database directory: volledig gewist voor testrun
+
+**Breaking Changes:** Geen
+
+- Backward compatible met bestaande config
+- Geen nieuwe secrets vereist
+- Cache disabled by default
+- Alle environment variables unchanged
+
+---
+
+Last updated: 2025-12-10
