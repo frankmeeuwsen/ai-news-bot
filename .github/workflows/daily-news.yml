@@ -3,7 +3,7 @@ name: Daily AI News Digest
 on:
   # Run daily at 0:00 AM UTC (adjust as needed)
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 6 * * *"
 
   # Allow manual trigger
   workflow_dispatch:
@@ -47,6 +47,7 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
           # Optional: Specify a model (if not set, uses provider's default)
           # Examples: claude-sonnet-4-5-20250929, deepseek-chat, deepseek-reasoner
