@@ -54,6 +54,14 @@
     - Statistieken per notificatie methode (geslaagd/gefaald)
     - Runtime en kosten (indien beschikbaar)
 
+- [ ] **Kosten Tracking per Editie**
+  - Ophalen van daadwerkelijke kosten via OpenRouter API
+  - API endpoint: `/api/v1/generation` response bevat `usage` object met costs
+  - Logging van kosten per stage (Stage 1 + Stage 2)
+  - Totaalkosten per nieuwsbrief editie
+  - Cumulatieve kosten tracking over tijd
+  - Export naar CSV voor accounting/analyse
+
 ### 🤖 Machine Learning & Personalisatie
 
 - [ ] **Data Opslag voor Fine-tuning**
