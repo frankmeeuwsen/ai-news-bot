@@ -48,3 +48,9 @@ Thumbs.db
 .coverage
 htmlcov/
 .pytest_cache/
+
+# AI generated files
+.claude/
+CLAUDE.md
+agents.md
+gemini.md
