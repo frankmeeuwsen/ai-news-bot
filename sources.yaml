@@ -1,0 +1,132 @@
+# RSS Feed Sources for AI News
+# This file contains all news sources organized by language
+
+# International sources (English)
+international:
+  # Major Tech Media
+  TechCrunch AI: "https://techcrunch.com/tag/artificial-intelligence/feed/"
+  VentureBeat AI: "https://venturebeat.com/category/ai/feed/"
+  MIT Technology Review: "https://www.technologyreview.com/feed/"
+  Ars Technica AI: "https://arstechnica.com/tag/ai/feed/"
+  Wired AI: "https://www.wired.com/feed/tag/ai/latest/rss"
+  The Next Web: "https://thenextweb.com/feed"
+  The Verge AI: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"
+  Engadget AI: "https://www.engadget.com/tag/ai/rss.xml"
+
+  # Official AI Company Blogs
+  OpenAI Blog: "https://openai.com/blog/rss/"
+  Google AI Blog: "https://blog.google/technology/ai/rss/"
+  DeepMind Blog: "https://deepmind.google/blog/rss.xml"
+  Meta AI Blog: "https://ai.meta.com/blog/rss/"
+  Microsoft AI Blog: "https://blogs.microsoft.com/ai/feed/"
+
+  # Research & Academic
+  arXiv AI: "https://rss.arxiv.org/rss/cs.AI"
+  arXiv Machine Learning: "https://rss.arxiv.org/rss/cs.LG"
+  arXiv Computer Vision: "https://rss.arxiv.org/rss/cs.CV"
+  arXiv NLP: "https://rss.arxiv.org/rss/cs.CL"
+
+  # Industry Verticals
+  Healthcare IT News AI: "https://www.healthcareitnews.com/taxonomy/term/31/feed"
+  Robotics Business Review: "https://www.roboticsbusinessreview.com/feed/"
+  Autonomous Vehicle News: "https://www.autonomousvehicleinternational.com/feed"
+
+# Language-specific sources
+languages:
+  # Chinese (zh)
+  zh:
+    "36Kr (36氪)": "https://36kr.com/feed"
+    "JiQiZhiXin (机器之心)": "https://www.jiqizhixin.com/rss"
+    "Leiphone (雷锋网)": "https://www.leiphone.com/feed"
+    "iFeng Tech (凤凰科技)": "https://tech.ifeng.com/rss/index.xml"
+    "Sina Tech (新浪科技)": "http://rss.sina.com.cn/tech/rollnews.xml"
+    "Google News AI (CN)": "https://news.google.com/rss/search?q=人工智能+AI&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+    "Google News LLM (CN)": "https://news.google.com/rss/search?q=大模型+GPT+Claude&hl=zh-CN&gl=CN&ceid=CN:zh-Hans"
+
+  # Japanese (ja)
+  ja:
+    "ITmedia AI+": "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml"
+    "Nikkei xTECH": "https://xtech.nikkei.com/rss/index.rdf"
+    "ASCII.jp AI": "https://ascii.jp/elem/000/004/000/4000000/index-2.xml"
+    "Impress Watch": "https://www.watch.impress.co.jp/data/rss/1.0/ipw/feed.rdf"
+    "Google News AI (JP)": "https://news.google.com/rss/search?q=人工知能+AI&hl=ja&gl=JP&ceid=JP:ja"
+    "Google News Tech (JP)": "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0FtcG9HZ0pEVGlnQVAB?hl=ja&gl=JP&ceid=JP:ja"
+
+  # French (fr)
+  fr:
+    "L'Usine Digitale": "https://www.usine-digitale.fr/rss/intelligence-artificielle.xml"
+    "01net": "https://www.01net.com/rss/actualites/"
+    "Frandroid": "https://www.frandroid.com/feed"
+    "BFM Tech": "https://www.bfmtv.com/rss/tech/"
+    "Google News AI (FR)": "https://news.google.com/rss/search?q=intelligence+artificielle&hl=fr&gl=FR&ceid=FR:fr"
+    "Google News Tech (FR)": "https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0FtcG9HZ0pEVGlnQVAB?hl=fr&gl=FR&ceid=FR:fr"
+
+  # Spanish (es)
+  es:
+    "Xataka": "https://www.xataka.com/tag/inteligencia-artificial/rss2.xml"
+    "El País Tecnología": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada"
+    "Hipertextual": "https://hipertextual.com/feed"
+    "Genbeta": "https://www.genbeta.com/tag/inteligencia-artificial/rss2.xml"
+    "Google News AI (ES)": "https://news.google.com/rss/search?q=inteligencia+artificial&hl=es&gl=ES&ceid=ES:es"
+
+  # German (de)
+  de:
+    "Heise Online": "https://www.heise.de/rss/heise-atom.xml"
+    "t3n Digital Pioneers": "https://t3n.de/tag/kuenstliche-intelligenz/feed/"
+    "Golem.de": "https://rss.golem.de/rss.php?feed=RSS2.0"
+    "Computerwoche": "https://www.computerwoche.de/rss/feed/computerwoche-alle"
+    "Google News AI (DE)": "https://news.google.com/rss/search?q=künstliche+intelligenz&hl=de&gl=DE&ceid=DE:de"
+
+  # Korean (ko)
+  ko:
+    "Chosun Biz Tech": "https://biz.chosun.com/rss/tech.xml"
+    "ZDNet Korea": "https://zdnet.co.kr/rss/"
+    "ETNews": "https://rss.etnews.com/Section901.xml"
+    "Korean AI News": "https://www.aitimes.kr/rss/allArticle.xml"
+    "Google News AI (KR)": "https://news.google.com/rss/search?q=인공지능&hl=ko&gl=KR&ceid=KR:ko"
+
+  # Portuguese (pt)
+  pt:
+    "TecMundo": "https://www.tecmundo.com.br/rss"
+    "Olhar Digital": "https://olhardigital.com.br/feed/"
+    "Canaltech": "https://canaltech.com.br/rss/"
+    "Exame": "https://exame.com/feed/tecnologia/"
+    "Google News AI (BR)": "https://news.google.com/rss/search?q=inteligência+artificial&hl=pt-BR&gl=BR&ceid=BR:pt-419"
+
+  # Italian (it)
+  it:
+    "Il Sole 24 Ore Tech": "https://www.ilsole24ore.com/rss/tecnologia.xml"
+    "Punto Informatico": "https://www.punto-informatico.it/feed/"
+    "Tom's Hardware IT": "https://www.tomshw.it/feed"
+    "Wired Italia": "https://www.wired.it/feed/rss"
+    "Google News AI (IT)": "https://news.google.com/rss/search?q=intelligenza+artificiale&hl=it&gl=IT&ceid=IT:it"
+
+  # Russian (ru)
+  ru:
+    "Habr": "https://habr.com/ru/rss/all/"
+    "CNews": "https://www.cnews.ru/inc/rss/news.xml"
+    "Roem.ru": "https://roem.ru/feed/"
+    "VC.ru": "https://vc.ru/rss/all"
+    "Google News AI (RU)": "https://news.google.com/rss/search?q=искусственный+интеллект&hl=ru&gl=RU&ceid=RU:ru"
+
+  # Dutch (nl)
+  nl:
+    "Tweakers": "https://feeds.feedburner.com/tweakers/mixed"
+    "Computable": "https://www.computable.nl/rss.xml"
+    "Dutch IT Channel": "https://dutchitchannel.nl/feed/"
+    "Frankwatching": "https://feeds.feedburner.com/Frankwatching"
+    "AG Connect": "https://www.agconnect.nl/rss"
+    "Het Financieele Dagblad": "https://fd.nl/?rss"
+    "Google News AI (NL)": "https://news.google.com/rss/search?q=kunstmatige+intelligentie&hl=nl&gl=NL&ceid=NL:nl"
+
+  # Arabic (ar)
+  ar:
+    "Arageek": "https://www.arageek.com/feed"
+    "Tech Wd": "https://www.tech-wd.com/feed/"
+    "Google News AI (AR)": "https://news.google.com/rss/search?q=الذكاء+الاصطناعي&hl=ar&gl=SA&ceid=SA:ar"
+
+  # Hindi (hi)
+  hi:
+    "Jagran Josh Tech": "https://www.jagranjosh.com/rss/tech.xml"
+    "NDTV Gadgets": "https://feeds.feedburner.com/ndtvgadgets-latest"
+    "Google News AI (HI)": "https://news.google.com/rss/search?q=कृत्रिम+बुद्धिमत्ता&hl=hi&gl=IN&ceid=IN:hi"

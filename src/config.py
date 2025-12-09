@@ -105,79 +105,8 @@ class Config:
             "Latest AI developments and breakthroughs"
         ])
 
-    @property
-    def stage1_prompt_template(self) -> str:
-        """Get the Stage 1 selection prompt template"""
-        default_template = """{formatted_news}
-
-## YOUR TASK - STAGE 1: NEWS SELECTION
-
-You are a senior AI industry analyst. Analyze the {total_items} news items above and select exactly 15-20 of the highest-quality items.
-
-### SELECTION CRITERIA:
-- ✅ Groundbreaking research or technical breakthroughs
-- ✅ Major product launches or significant updates
-- ✅ Important policy changes or regulations
-- ✅ Large funding rounds or M&A activities
-- ✅ Balanced coverage across categories (LLM, Agents, Research, Products, etc.)
-- ✅ Include both international and domestic news when available
-- ✅ Prefer primary sources over secondary reporting
-
-### OUTPUT FORMAT:
-Return ONLY a JSON array of selected news IDs. No explanations, no markdown, just the JSON array.
-
-Example format:
-["INT-1", "INT-5", "DOM-2", "INT-12", ...]
-
-CRITICAL: Select exactly 15-20 items. No more, no less."""
-
-        return self.config_data.get("news", {}).get("stage1_prompt_template", default_template)
-
-    @property
-    def stage2_prompt_template(self) -> str:
-        """Get the Stage 2 summarization prompt template"""
-        default_template = """You are a senior AI industry analyst. Create a comprehensive, in-depth news digest for the {count} pre-selected news items below.
-
-{selected_news}
-
-## OUTPUT STRUCTURE:
-
-Organize news items into relevant categories (use only categories that have news):
-1. **Large Language Models & Foundation Models**
-2. **AI Agents & Autonomous Systems**
-3. **Research & Academic Breakthroughs**
-4. **Product Launches & Updates**
-5. **AI Infrastructure & Hardware**
-6. **Funding & Market Dynamics**
-7. **Policy & Regulation**
-
-## CONTENT REQUIREMENTS:
-
-For each news item:
-- **Clear Headline**: Informative title
-- **Analytical Summary (4-6 sentences)**: What happened, technical details, why it matters, implications
-- **Source Attribution**: [Source Name](URL)
-
-## WRITING STYLE:
-- Professional, analytical tone
-- Include specific metrics and data
-- Technical accuracy
-- Context and analysis
-
-## QUALITY REQUIREMENTS:
-- ✅ Summarize ALL {count} items (no skipping)
-- ✅ Each summary exactly 4-6 sentences
-- ✅ Include specific numbers and data
-- ✅ Balanced coverage across categories
-- ✅ All sources as clickable markdown links
-
-## AVOID:
-❌ Generic statements
-❌ Wrong summary length
-❌ Missing links
-❌ Skipping items"""
-
-        return self.config_data.get("news", {}).get("stage2_prompt_template", default_template)
+    # Note: Prompt templates are now loaded from markdown files in prompts/ directory
+    # See prompts/stage1_selection.md and prompts/stage2_summarization.md
 
     @property
     def log_level(self) -> str:
@@ -269,6 +198,8 @@ For each news item:
             return os.getenv("XAI_API_KEY")
         elif provider == "openai":
             return os.getenv("OPENAI_API_KEY")
+        elif provider == "openrouter":
+            return os.getenv("OPENROUTER_API_KEY")
         return None
 
     def get(self, key: str, default: Any = None) -> Any:

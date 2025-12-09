@@ -7,19 +7,20 @@ from .deepseek_provider import DeepSeekProvider
 from .gemini_provider import GeminiProvider
 from .grok_provider import GrokProvider
 from .openai_provider import OpenAIProvider
+from .openrouter_provider import OpenRouterProvider
 
 
 def get_llm_provider(provider_name: str, **kwargs) -> BaseLLMProvider:
     """
     Factory function to get the appropriate LLM provider.
-    
+
     Args:
-        provider_name: Name of the provider ('claude', 'deepseek', 'gemini', 'grok', or 'openai')
+        provider_name: Name of the provider ('claude', 'deepseek', 'gemini', 'grok', 'openai', or 'openrouter')
         **kwargs: Additional arguments passed to the provider constructor
-        
+
     Returns:
         An instance of the requested LLM provider
-        
+
     Raises:
         ValueError: If provider_name is not recognized
     """
@@ -29,6 +30,7 @@ def get_llm_provider(provider_name: str, **kwargs) -> BaseLLMProvider:
         'gemini': GeminiProvider,
         'grok': GrokProvider,
         'openai': OpenAIProvider,
+        'openrouter': OpenRouterProvider,
     }
     
     provider_class = providers.get(provider_name.lower())
@@ -48,5 +50,6 @@ __all__ = [
     'GeminiProvider',
     'GrokProvider',
     'OpenAIProvider',
+    'OpenRouterProvider',
     'get_llm_provider',
 ]
