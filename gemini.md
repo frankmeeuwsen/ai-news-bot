@@ -1,7 +1,3 @@
-# gemini.md
-> Deze file wordt automatisch gesynchroniseerd met CLAUDE.md
-> Laatste sync: 2025-12-10 23:45
-
 # AI News Bot - Claude Context
 
 ## Project Overzicht
@@ -189,4 +185,72 @@ Een automatische nieuwsbot die RSS feeds verzamelt, cureert met AI (via OpenRout
 
 ---
 
-Last updated: 2025-12-10
+### 2025-12-22: Server Deployment (Hetzner)
+
+**Context:** Migratie van GitHub Actions naar eigen Hetzner server voor meer controle en lagere latency.
+
+**Server Setup:**
+
+1. **Server Details**
+   - Host: `116.203.122.56` (Hetzner)
+   - User: `frank` (sudo)
+   - OS: Ubuntu 20.04 (Python 3.8)
+   - Locatie: `/home/frank/apps/ai-news-bot`
+
+2. **Git Remote Configuratie**
+   - **Forgejo (origin):** `git@git.dutchstack.nl:frankmeeuwsen/ai-news-bot.git`
+   - **GitHub (github):** `git@github.com:frankmeeuwsen/ai-news-bot.git`
+   - Web interface: `https://forgejo.dutchstack.nl:3000`
+   - SSH via: `git.dutchstack.nl` (zonder Cloudflare proxy voor SSH support)
+   - Beide remotes werkend op lokaal en server
+
+3. **Systemd Configuratie**
+   - Service: `/etc/systemd/system/ai-news-bot.service`
+   - Timer: `/etc/systemd/system/ai-news-bot.timer`
+   - Schedule: Dagelijks 07:00 Amsterdam tijd
+   - Logs: `~/apps/ai-news-bot/logs/`
+
+4. **Code Fixes voor Server Compatibiliteit**
+   - `requirements.txt`: `google-generativeai` optioneel gemaakt (niet nodig voor Claude/OpenRouter)
+   - `src/llm_providers/__init__.py`: Lazy imports - providers worden alleen geladen wanneer nodig
+   - `src/llm_providers/openrouter_provider.py`: `Union[str, Dict]` syntax ipv `str | Dict` voor Python 3.8
+
+**Configuratie:**
+
+- Environment: `~/.env-newsbot` (of `.env` in project dir)
+- LLM Provider: OpenRouter (claude/sonnet-4.5)
+- Notificaties: Gmail SMTP
+- Database: SQLite (`data/newsbot.db`)
+
+**Handige Commando's:**
+
+| Actie | Commando |
+|-------|----------|
+| Status timer | `systemctl status ai-news-bot.timer` |
+| Volgende run | `systemctl list-timers ai-news-bot.timer` |
+| Handmatig draaien | `sudo systemctl start ai-news-bot.service` |
+| Logs bekijken | `tail -f ~/apps/ai-news-bot/logs/output.log` |
+| Errors bekijken | `tail -f ~/apps/ai-news-bot/logs/error.log` |
+
+**Failure Alerts:**
+
+- Script: `scripts/alert-on-failure.sh`
+- Triggered via `ExecStopPost` in systemd service
+- Stuurt email bij failures
+
+**Forgejo Actions CI/CD:**
+
+- Automatische deployment via `.forgejo/workflows/deploy.yml`
+- Runner: `hetzner-runner` op server (systemd service)
+- Trigger: Push naar `main` branch
+- Deployment flow:
+  1. SSH naar server met deployment key
+  2. `git pull origin main`
+  3. `pip install -r requirements.txt`
+  4. `sudo systemctl restart ai-news-bot.timer`
+- Logs: `https://forgejo.dutchstack.nl/frankmeeuwsen/ai-news-bot/actions`
+- Runner status: `sudo systemctl status forgejo-runner.service`
+
+---
+
+Last updated: 2025-12-23
