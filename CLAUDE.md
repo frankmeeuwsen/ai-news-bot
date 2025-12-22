@@ -197,13 +197,20 @@ Een automatische nieuwsbot die RSS feeds verzamelt, cureert met AI (via OpenRout
    - OS: Ubuntu 20.04 (Python 3.8)
    - Locatie: `/home/frank/apps/ai-news-bot`
 
-2. **Systemd Configuratie**
+2. **Git Remote Configuratie**
+   - **Forgejo (origin):** `git@git.dutchstack.nl:frankmeeuwsen/ai-news-bot.git`
+   - **GitHub (github):** `git@github.com:frankmeeuwsen/ai-news-bot.git`
+   - Web interface: `https://forgejo.dutchstack.nl:3000`
+   - SSH via: `git.dutchstack.nl` (zonder Cloudflare proxy voor SSH support)
+   - Beide remotes werkend op lokaal en server
+
+3. **Systemd Configuratie**
    - Service: `/etc/systemd/system/ai-news-bot.service`
    - Timer: `/etc/systemd/system/ai-news-bot.timer`
    - Schedule: Dagelijks 07:00 Amsterdam tijd
    - Logs: `~/apps/ai-news-bot/logs/`
 
-3. **Code Fixes voor Server Compatibiliteit**
+4. **Code Fixes voor Server Compatibiliteit**
    - `requirements.txt`: `google-generativeai` optioneel gemaakt (niet nodig voor Claude/OpenRouter)
    - `src/llm_providers/__init__.py`: Lazy imports - providers worden alleen geladen wanneer nodig
    - `src/llm_providers/openrouter_provider.py`: `Union[str, Dict]` syntax ipv `str | Dict` voor Python 3.8
