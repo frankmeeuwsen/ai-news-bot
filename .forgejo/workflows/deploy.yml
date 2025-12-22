@@ -1,0 +1,50 @@
+name: Deploy to Hetzner Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_HOST: 116.203.122.56
+          SERVER_USER: frank
+        run: |
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          # Add server to known_hosts (voorkomt "host key verification failed")
+          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+
+          # Deploy naar server
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST << 'ENDSSH'
+            cd /home/frank/apps/ai-news-bot
+
+            echo "📥 Pulling latest code..."
+            git pull origin main
+
+            echo "📦 Updating dependencies..."
+            source venv/bin/activate
+            pip install -r requirements.txt --quiet
+
+            echo "🔄 Restarting systemd timer..."
+            sudo systemctl restart ai-news-bot.timer
+
+            echo "✅ Deployment complete!"
+            echo "Next run: $(systemctl list-timers ai-news-bot.timer --no-pager | grep ai-news-bot)"
+ENDSSH
+
+          echo "🚀 Server deployment successful!"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed! Check the logs above."
