@@ -1,9 +1,12 @@
+# Core dependencies
 anthropic>=0.18.0
 openai>=1.0.0
-google-generativeai>=0.3.0
 requests>=2.31.0
 python-dotenv>=1.0.0
 pyyaml>=6.0.1
 markdown>=3.5.0
 feedparser>=6.0.0
 sqlalchemy>=2.0.0
+
+# Optional: uncomment if using these providers
+# google-generativeai>=0.3.0  # Gemini

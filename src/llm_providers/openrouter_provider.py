@@ -1,8 +1,9 @@
 """
 OpenRouter Provider - OpenRouter API implementation using OpenAI-compatible interface
 """
+from __future__ import annotations
 import os
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 from openai import OpenAI
 from .base_provider import BaseLLMProvider
 from ..logger import setup_logger
@@ -55,7 +56,7 @@ class OpenRouterProvider(BaseLLMProvider):
         temperature: float = 1.0,
         return_usage: bool = False,
         **kwargs
-    ) -> str | Dict[str, Any]:
+    ) -> Union[str, Dict[str, Any]]:
         """
         Generate a response using OpenRouter API.
 

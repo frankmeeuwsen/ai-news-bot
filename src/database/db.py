@@ -47,13 +47,18 @@ class DatabaseManager:
 
         # Default naar SQLite als geen URL opgegeven
         if db_url is None:
-            # Create data directory als niet bestaat
             data_dir = self._get_data_dir()
-            os.makedirs(data_dir, exist_ok=True)
-
             db_path = os.path.join(data_dir, 'newsbot.db')
             db_url = f'sqlite:///{db_path}'
             logger.info(f"Using SQLite database at: {db_path}")
+
+        # Zorg dat directory bestaat voor SQLite databases (voordat engine wordt aangemaakt)
+        if db_url.startswith('sqlite:///'):
+            db_file_path = db_url.replace('sqlite:///', '')
+            db_dir = os.path.dirname(db_file_path)
+            if db_dir:  # Alleen als er een directory pad is
+                os.makedirs(db_dir, exist_ok=True)
+                logger.info(f"Ensured database directory exists: {db_dir}")
 
         # Create engine
         self._engine = create_engine(
