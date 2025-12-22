@@ -238,6 +238,19 @@ Een automatische nieuwsbot die RSS feeds verzamelt, cureert met AI (via OpenRout
 - Triggered via `ExecStopPost` in systemd service
 - Stuurt email bij failures
 
+**Forgejo Actions CI/CD:**
+
+- Automatische deployment via `.forgejo/workflows/deploy.yml`
+- Runner: `hetzner-runner` op server (systemd service)
+- Trigger: Push naar `main` branch
+- Deployment flow:
+  1. SSH naar server met deployment key
+  2. `git pull origin main`
+  3. `pip install -r requirements.txt`
+  4. `sudo systemctl restart ai-news-bot.timer`
+- Logs: `https://forgejo.dutchstack.nl/frankmeeuwsen/ai-news-bot/actions`
+- Runner status: `sudo systemctl status forgejo-runner.service`
+
 ---
 
-Last updated: 2025-12-22
+Last updated: 2025-12-23
