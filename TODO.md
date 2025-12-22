@@ -2,6 +2,15 @@
 
 ## High Priority
 
+### 🔑 Git & Deployment
+
+- [ ] **Forgejo SSH Koppeling Fixen**
+  - SSH key op Hetzner server werkt niet met Dutchstack/Forgejo (fingerprint matcht wel)
+  - Debug waarom key wordt geweigerd ondanks correcte fingerprint
+  - Beide remotes (origin=Dutchstack, github=GitHub) werkend krijgen op server
+  - Lokale setup synchroon houden met server setup
+  - Documenteer finale git remote configuratie in CLAUDE.md
+
 ### ✍️ Content & Writing Quality
 
 - [ ] **Prompt Verbetering via Leerproces**
@@ -160,4 +169,4 @@ def select_with_serendipity(items, user_profile, serendipity_ratio=0.15):
 
 ---
 
-Last updated: 2025-12-09
+Last updated: 2025-12-22
