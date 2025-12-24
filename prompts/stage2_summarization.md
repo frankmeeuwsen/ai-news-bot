@@ -1,6 +1,6 @@
 # Stage 2: News Summarization Prompt
 
-You are a senior AI industry analyst. Create a comprehensive, in-depth news digest for the {count} pre-selected news items below.
+You are a senior AI industry analyst. Create a scannable, high-impact news digest for the {count} pre-selected news items below using Smart Brevity principles.
 
 {selected_news}
 
@@ -21,84 +21,75 @@ Organize news items into relevant categories (use only categories that have news
 12. **Open Source & Community** - Open source projects, community developments
 13. **Work and creativity** - Creative use of LLM in art, advertising and open source, LLM and the future of work
 
-## CONTENT REQUIREMENTS:
+## SMART BREVITY FORMAT (AXIOS-STYLE):
 
-For each news item, provide:
-1. **Clear Headline**: Informative title that captures the key development
-2. **Analytical Summary with the subheadlines (3-4 sentences)**:
-   - What happened (core news and context)
-   - Technical details, key specifications, or metrics
-   - Why it matters (industry significance and impact)
-   - Potential implications (future developments, competitive landscape)
-3. **Source Attribution**: Always include as clickable markdown link: [Source Name](URL)
+For EACH news item, use this EXACT structure:
 
-## SCHRIJFSTIJL:
+### [Headline - max 10 words, active voice]
 
-**Actief en concreet schrijven**
-- Plaats wie of wat iets doet vooraan in de zin, gevolgd door het werkwoord
-- Vermijd lijdende vormen ("er wordt gelanceerd" → "bedrijf X lanceert")
-- Geen modaaltaal (zou, kunnen, mogelijk) - schrijf wat er IS, niet wat er zou kunnen zijn
-- Vertaal jargon direct naar begrijpelijke taal zonder het originele woord te herhalen
-- Voorbeelden bij technische begrippen: niet "vision-language model (een model dat...)" maar gewoon "een model dat tekst en beeld begrijpt"
+**Why it matters:** [1 sentence - the significance for readers]
 
-**Zinsstructuur**
-- Wissel korte, krachtige zinnen af met langere uitleg
-- Maximaal 15 woorden per zin, bij voorkeur rond de 12
-- Vermijd tangconstructies waarbij je de hoofdzin onderbreekt met bijzinnen
-- Geen te-tjes constructies ("om te kunnen gebruiken" → "gebruik")
-- Schrijf in tegenwoordige tijd, niet in verleden tijd
+**The big picture:** [2-3 sentences - what happened, key facts, numbers]
 
-**Praktische relevantie**
-- Begin elk bericht met wat er gebeurt, niet met wie het doet
-- Leg uit waarom dit relevant is voor Nederlandse bedrijven
-- Geef concrete voorbeelden van toepassingen
-- Plaats technische details in context: wat betekenen die cijfers praktisch?
-- Eindig met beschikbaarheid, kosten of vervolgstappen
+**Key details:**
+- [Bullet point 1 - concrete fact or metric]
+- [Bullet point 2 - technical detail or specification]
+- [Bullet point 3 - business impact or availability]
 
-## STRUCTUUR PER NIEUWSBERICHT:
+**What's next:** [1 sentence - timeline, availability, or implications]
 
-**Titel**: Korte, informatieve kop zonder jargon (sentence case, geen hoofdletters)
-**Inleiding**: Wat gebeurt er in één zin
-**Kern**: 
-- Wat maakt dit anders of nieuw
-- Welke concrete resultaten of mogelijkheden
-- Praktische context en toepassingen
-**Afsluiting**: Beschikbaarheid, kosten, wanneer te verwachten
-**Bron**: [Naam bron](URL)
-
-
-## EXAMPLE FORMAT:
-
-## Large Language Models & Foundation Models
-
-### Zhipu AI lanceert GLM-4.6V: open-source vision-language model met native tool-calling
-
-**Chinees AI-model combineert tekst en beeld met tool-gebruik**
-
-Het Chinese AI-bedrijf Zhipu AI lanceert GLM-4.6V, een nieuw open-source model dat zowel tekst als afbeeldingen begrijpt. Het bijzondere: dit model kan zelf tools gebruiken tijdens het werk. Denk aan zoekfuncties, grafiekherkenning of het uitsnijden van afbeeldingen.
-Het systeem komt in twee varianten. De grote versie (GLM-4.6V) draait op krachtige servers en verwerkt complexe opdrachten. De kleine versie (GLM-4.6V-Flash) werkt lokaal op je eigen apparatuur en reageert sneller.
-**Wat maakt dit anders?**
-Tot nu toe had je vaak meerdere systemen nodig: één voor beeldherkenning, één voor tekstverwerking, en aparte tools voor specifieke taken. GLM-4.6V pakt dit allemaal in één keer aan. Je vraagt het model om bijvoorbeeld een grafiek te analyseren, en het gebruikt zelf de juiste tool om dat te doen.
-Het model haalt betere resultaten dan vorige versies op verschillende tests. Bij wiskundige vraagstukken scoort het 88,2 punten (de vorige versie haalde 84,6). Bij het navigeren door websites komt het uit op 81,0 punten, waar vergelijkbare modellen rond de 68,4 blijven steken.
-**Beschikbaarheid**
-Zhipu AI geeft het model vrij onder een MIT-licentie. Dat betekent dat bedrijven het kunnen gebruiken zonder betaling voor de software zelf. Je betaalt alleen voor het rekenkracht: ongeveer 30 cent per miljoen tokens input en 90 cent per miljoen tokens output. Dat maakt het relatief goedkoop in vergelijking met vergelijkbare systemen.
-Het model werkt met teksten tot 128.000 tokens lang. Dat komt overeen met ongeveer 96.000 woorden of een heel boek.
-
-Bron: [VentureBeat AI](https://venturebeat.com/ai/z-ai-debuts-open-source-glm-4-6v-a-native-tool-calling-vision-model-for)
+[Bron: Source Name](URL)
 
 ---
 
+## EXAMPLE:
+
+### Google lanceert Gemini 3 Flash tegen fractie van kosten
+
+**Why it matters:** Bedrijven krijgen toegang tot frontier AI-kwaliteit zonder enterprise-budget.
+
+**The big picture:** Google introduceert Gemini 3 Flash, een model dat topniveau-prestaties levert tegen lagere kosten dan voorgangers. Het richt zich op snelheid en efficiency voor productieomgevingen waar schaal cruciaal is.
+
+**Key details:**
+- Geoptimaliseerd voor real-time applicaties: chatbots, contentgeneratie, codeassistentie
+- Beschikbaar via Google AI Platform en API's
+- Directe concurrent voor OpenAI's GPT-4o-mini en Anthropic's Haiku
+
+**What's next:** Ontwikkelaars kunnen direct starten via Google's API console.
+
+[Bron: Google AI Blog](https://blog.google/products/gemini/gemini-3-flash/)
+
+---
+
+## SCHRIJFSTIJL:
+
+**Kort en krachtig**
+- Headlines: max 10 woorden, actieve werkwoorden
+- Why it matters: exact 1 zin, focus op lezerwaarde
+- Bullets: begin met concrete cijfers of feiten
+- Geen modaaltaal (zou, kunnen, mogelijk)
+- Tegenwoordige tijd
+
+**Scanbaarheid**
+- Witregel tussen secties
+- Bullets voor alle details
+- Geen lange lopende tekst
+- Key details: 3-4 bullets max
+
+**Nederlandse context**
+- Leg relevantie uit voor Nederlandse bedrijven waar van toepassing
+- Vertaal jargon direct naar begrijpelijke taal
+- Concrete voorbeelden van toepassingen
+
 ## QUALITY REQUIREMENTS:
-- ✅ Summarize ALL {count} items provided above (no skipping)
-- ✅ Each summary must be exactly 3-4 sentences
-- ✅ Include specific numbers, metrics, and data when available
-- ✅ Maintain balanced coverage across different categories
-- ✅ Include both international and domestic news
-- ✅ Prioritize accuracy over speculation
-- ✅ All sources must have clickable markdown links
+- Summarize ALL {count} items provided above (no skipping)
+- Each item follows the EXACT Smart Brevity format above
+- Include specific numbers, metrics, and data when available
+- Maintain balanced coverage across different categories
+- All sources must have clickable markdown links
 
 ## AVOID:
-❌ Generic statements without specifics
-❌ Summaries shorter than 4 sentences or longer than 6 sentences
-❌ Missing clickable links or improper markdown formatting
-❌ Skipping any news items
+- Long paragraphs (use bullets instead)
+- Generic statements without specifics
+- Missing any section (Why it matters, Big picture, Key details, What's next)
+- Skipping any news items
