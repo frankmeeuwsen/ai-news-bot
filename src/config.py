@@ -243,6 +243,11 @@ class Config:
         return self.config_data.get("llm", {}).get("model")
 
     @property
+    def llm_max_tokens(self) -> int:
+        """Get max output tokens for Stage 2 (summarization)"""
+        return self.config_data.get("llm", {}).get("max_tokens", 8000)
+
+    @property
     def llm_api_key(self) -> Optional[str]:
         """Get the API key for the LLM provider"""
         # Check environment variables based on provider
