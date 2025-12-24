@@ -113,21 +113,16 @@ class TestDataLoader:
             List of news item dictionaries
         """
         cutoff = datetime.utcnow() - timedelta(hours=hours)
+        import random
 
         with session_scope() as session:
-            # SQLite doesn't have RANDOM() but has RANDOM() function
+            # Get all matching items and shuffle in Python (simpler than SQL RANDOM)
             items = session.query(NewsItem).filter(
                 NewsItem.language == language,
                 NewsItem.fetched_at >= cutoff
-            ).order_by(
-                # Use raw SQL for random ordering
-                session.query(NewsItem).statement.with_only_columns(
-                    NewsItem.id
-                ).order_by().suffix_with('ORDER BY RANDOM()').limit(1).as_scalar()
-            ).limit(count * 2).all()
+            ).all()
 
-            # Manual shuffle since SQLite random ordering can be tricky
-            import random
+            # Shuffle and take sample
             random.shuffle(items)
             items = items[:count]
 
