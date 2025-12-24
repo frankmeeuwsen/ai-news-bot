@@ -1,5 +1,64 @@
 # AI News Bot - Logboek
 
+## 2025-12-24: Geautomatiseerde Database Synchronisatie
+
+**Context:** Database sync van server naar lokaal voor development, geïmplementeerd via launchd agent.
+
+**Doorgevoerde wijzigingen:**
+
+1. **Database Sync Script**
+   - Aangemaakt: `scripts/sync-db.sh`
+   - Functionaliteit: SCP download van `newsbot.db` van Hetzner server
+   - Lokaal pad: `data/newsbot.db` (overschrijft bestaande database)
+   - SSH: Via `~/.ssh/dtd_rsync` key
+
+2. **Launchd Agent**
+   - Aangemaakt: `~/Library/LaunchAgents/nl.frankmeeuwsen.ai-news-bot-sync.plist`
+   - Schedule: Dagelijks 08:00 uur
+   - Automatische start bij login via `launchctl load`
+   - Logs: `~/Library/Logs/ai-news-bot-sync.log`
+
+3. **Documentatie**
+   - CLAUDE.md: Database sync sectie toegevoegd aan server deployment
+   - TROUBLESHOOTING.md: Nieuwe troubleshooting guide aangemaakt
+     - Database sync debugging (permissions, SSH, launchd)
+     - Server deployment issues
+     - Common errors met oplossingen
+
+**Technische Details:**
+
+- SCP commando: `scp -i ~/.ssh/dtd_rsync frank@116.203.122.56:/home/frank/apps/ai-news-bot/data/newsbot.db data/`
+- Launchd: `StartCalendarInterval` met Hour=8, Minute=0
+- Executable bit: `chmod +x scripts/sync-db.sh`
+- Launchd load: `launchctl load ~/Library/LaunchAgents/nl.frankmeeuwsen.ai-news-bot-sync.plist`
+
+**Workflow:**
+
+1. Server draait daily newsletter om 07:00 (systemd timer)
+2. Lokale sync om 08:00 (launchd agent)
+3. Development met verse productie data
+
+**Belangrijke Beslissingen:**
+
+- Launchd agent boven cron voor macOS compatibility
+- Overschrijven lokale database acceptabel (dev environment)
+- SSH key hergebruik (`dtd_rsync`) voor consistency
+- Eén uur delay tussen newsletter run en sync
+
+**Git Status:**
+
+- Branch: `main`
+- Laatste commit: `fd25bd0` - feat: add automated daily database sync from server to local
+- Working tree: 2 uncommitted files (CLAUDE.md, TROUBLESHOOTING.md)
+
+**Open Items:**
+
+- Testen eerste sync morgen 08:00
+- Monitoring van sync failures (launchd logs)
+- Optioneel: Bidirectionele sync voor feedback data
+
+---
+
 ## 2025-12-23: Forgejo Actions CI/CD Implementatie
 
 **Context:** Automatische deployment naar Hetzner server via Forgejo Actions, volledig zelfgehoste CI/CD pipeline.

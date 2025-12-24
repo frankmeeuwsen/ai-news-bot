@@ -196,6 +196,8 @@ Een automatische nieuwsbot die RSS feeds verzamelt, cureert met AI (via OpenRout
    - User: `frank` (sudo)
    - OS: Ubuntu 20.04 (Python 3.8)
    - Locatie: `/home/frank/apps/ai-news-bot`
+   - SSH Key: `~/.ssh/dtd_rsync`
+   - SSH Commando: `ssh -i ~/.ssh/dtd_rsync frank@116.203.122.56`
 
 2. **Git Remote Configuratie**
    - **Forgejo (origin):** `git@git.dutchstack.nl:frankmeeuwsen/ai-news-bot.git`
@@ -251,6 +253,69 @@ Een automatische nieuwsbot die RSS feeds verzamelt, cureert met AI (via OpenRout
 - Logs: `https://forgejo.dutchstack.nl/frankmeeuwsen/ai-news-bot/actions`
 - Runner status: `sudo systemctl status forgejo-runner.service`
 
+**Troubleshooting:**
+
+Voor problemen met de service, zie [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
+
 ---
 
-Last updated: 2025-12-23
+### 2025-12-24: Lokale Database Synchronisatie (macOS)
+
+**Context:** Automatische dagelijkse sync van production database van server naar lokale machine voor analyse en development.
+
+**Implementatie:**
+
+1. **Sync Script** (`scripts/sync-database.sh`)
+   - Haalt dagelijks `newsbot.db` op van Hetzner server via SCP
+   - Maakt automatisch backup (`newsbot.db.backup`) voor rollback
+   - macOS notificaties bij succes/falen
+   - Logging naar `logs/db-sync.log`
+
+2. **Launchd Agent** (`~/Library/LaunchAgents/nl.frankmeeuwsen.ai-news-bot.sync.plist`)
+   - Label: `nl.frankmeeuwsen.ai-news-bot.sync`
+   - Schedule: Dagelijks 08:00 uur
+   - StartOnMount: Catch-up bij gemiste runs (laptop uit)
+   - Logs: `logs/launchd-sync-stdout.log` en `logs/launchd-sync-stderr.log`
+
+3. **Documentatie** (`scripts/README-database-sync.md`)
+   - Beheer commando's (start/stop/status)
+   - Troubleshooting guide
+   - Schema wijziging instructies
+
+**Handige Commando's:**
+
+| Actie | Commando |
+|-------|----------|
+| Status checken | `launchctl list \| grep ai-news-bot` |
+| Handmatig draaien | `launchctl start nl.frankmeeuwsen.ai-news-bot.sync` |
+| Logs bekijken | `tail -f logs/db-sync.log` |
+| Agent stoppen | `launchctl unload ~/Library/LaunchAgents/nl.frankmeeuwsen.ai-news-bot.sync.plist` |
+| Agent starten | `launchctl load ~/Library/LaunchAgents/nl.frankmeeuwsen.ai-news-bot.sync.plist` |
+
+**SSH Configuratie:**
+
+Gebruikt SSH alias `dtd` (gedefinieerd in `~/.ssh/config`):
+```
+Host dtd
+    HostName 116.203.122.56
+    User frank
+    IdentityFile ~/.ssh/dtd_rsync
+```
+
+**Naming Convention:**
+
+⚠️ **BELANGRIJK:** Gebruik altijd `frankmeeuwsen` (niet `frankwatching`) in:
+- Launchd plist labels
+- Script namen en identifiers
+- Alle macOS services en agents
+
+**Workflow:**
+
+1. Server draait dagelijks om 07:00 (Amsterdam tijd) → genereert nieuwe database
+2. Lokaal draait sync om 08:00 → haalt nieuwe database op
+3. Notificatie verschijnt automatisch
+4. Backup wordt overschreven bij volgende sync
+
+---
+
+Last updated: 2025-12-24
