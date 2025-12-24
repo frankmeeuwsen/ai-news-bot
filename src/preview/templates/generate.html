@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Newsletter - AI News Bot Preview{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">Generate Test Newsletter</h1>
+
+    <form action="/generate" method="POST">
+        <div class="mb-6">
+            <p class="text-gray-600 mb-4">
+                Select news items to include in the newsletter, or leave empty for a random sample of 15 items.
+            </p>
+
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm text-gray-500">{{ items|length }} items available</span>
+                <div class="space-x-2">
+                    <button type="button" onclick="selectAll()" class="text-sm text-primary hover:underline">Select All</button>
+                    <button type="button" onclick="selectNone()" class="text-sm text-primary hover:underline">Select None</button>
+                    <button type="button" onclick="selectRandom(15)" class="text-sm text-primary hover:underline">Random 15</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-h-96 overflow-y-auto border rounded mb-6">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 sticky top-0">
+                    <tr>
+                        <th class="py-2 px-3 text-left w-8"></th>
+                        <th class="py-2 px-3 text-left">Title</th>
+                        <th class="py-2 px-3 text-left">Source</th>
+                        <th class="py-2 px-3 text-left">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-2 px-3">
+                            <input type="checkbox" name="items" value="{{ item.id }}" class="item-checkbox rounded">
+                        </td>
+                        <td class="py-2 px-3">
+                            <div class="font-medium text-gray-800 truncate max-w-md" title="{{ item.title }}">
+                                {{ item.title }}
+                            </div>
+                            {% if item.description %}
+                            <div class="text-xs text-gray-500 truncate max-w-md" title="{{ item.description }}">
+                                {{ item.description[:100] }}...
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="py-2 px-3 text-gray-600">{{ item.source }}</td>
+                        <td class="py-2 px-3 text-gray-500 text-xs">{{ item.fetched_at[:10] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex justify-between items-center">
+            <span id="selected-count" class="text-sm text-gray-500">0 items selected</span>
+            <div class="space-x-3">
+                <a href="/" class="px-4 py-2 border rounded hover:bg-gray-50 transition">Cancel</a>
+                <button type="submit" class="bg-primary text-white px-6 py-2 rounded hover:bg-blue-600 transition">
+                    Generate Newsletter
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const checkboxes = document.querySelectorAll('.item-checkbox');
+    const countDisplay = document.getElementById('selected-count');
+
+    function updateCount() {
+        const checked = document.querySelectorAll('.item-checkbox:checked').length;
+        countDisplay.textContent = checked + ' items selected';
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', updateCount));
+
+    function selectAll() {
+        checkboxes.forEach(cb => cb.checked = true);
+        updateCount();
+    }
+
+    function selectNone() {
+        checkboxes.forEach(cb => cb.checked = false);
+        updateCount();
+    }
+
+    function selectRandom(count) {
+        selectNone();
+        const indices = [];
+        while (indices.length < Math.min(count, checkboxes.length)) {
+            const r = Math.floor(Math.random() * checkboxes.length);
+            if (!indices.includes(r)) indices.push(r);
+        }
+        indices.forEach(i => checkboxes[i].checked = true);
+        updateCount();
+    }
+</script>
+{% endblock %}

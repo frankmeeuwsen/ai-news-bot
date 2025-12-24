@@ -8,5 +8,8 @@ markdown>=3.5.0
 feedparser>=6.0.0
 sqlalchemy>=2.0.0
 
+# Preview server
+flask>=3.0.0
+
 # Optional: uncomment if using these providers
 # google-generativeai>=0.3.0  # Gemini

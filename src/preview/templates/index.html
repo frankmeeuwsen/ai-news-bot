@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}AI News Bot Preview - Home{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Stats Card -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Database Stats</h2>
+        <dl class="space-y-2">
+            <div class="flex justify-between">
+                <dt class="text-gray-600">Total Items</dt>
+                <dd class="font-semibold">{{ stats.total_items }}</dd>
+            </div>
+            <div class="flex justify-between">
+                <dt class="text-gray-600">Last 24h</dt>
+                <dd class="font-semibold">{{ stats.last_24h }}</dd>
+            </div>
+            <div class="flex justify-between">
+                <dt class="text-gray-600">Last 48h</dt>
+                <dd class="font-semibold">{{ stats.last_48h }}</dd>
+            </div>
+            <div class="flex justify-between">
+                <dt class="text-gray-600">Sources</dt>
+                <dd class="font-semibold">{{ stats.unique_sources }}</dd>
+            </div>
+        </dl>
+        <a href="/generate" class="mt-4 inline-block w-full text-center bg-primary text-white py-2 rounded hover:bg-blue-600 transition">
+            Generate New Newsletter
+        </a>
+    </div>
+
+    <!-- Recent Runs -->
+    <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Recent Test Runs</h2>
+
+        {% if test_runs %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="text-left text-gray-500 border-b">
+                    <tr>
+                        <th class="py-2 px-2">Date</th>
+                        <th class="py-2 px-2">Provider</th>
+                        <th class="py-2 px-2">Items</th>
+                        <th class="py-2 px-2">Tokens</th>
+                        <th class="py-2 px-2">Cost</th>
+                        <th class="py-2 px-2">Status</th>
+                        <th class="py-2 px-2"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for run in test_runs %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-2 px-2">{{ run.date }}</td>
+                        <td class="py-2 px-2">{{ run.provider }}</td>
+                        <td class="py-2 px-2">{{ run.items }}</td>
+                        <td class="py-2 px-2">{{ run.tokens }}</td>
+                        <td class="py-2 px-2">${{ "%.4f"|format(run.cost) }}</td>
+                        <td class="py-2 px-2">
+                            <span class="px-2 py-1 rounded text-xs {% if run.status == 'test_run' %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                {{ run.status }}
+                            </span>
+                        </td>
+                        <td class="py-2 px-2">
+                            <a href="/run/{{ run.id }}" class="text-primary hover:underline">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-gray-500">No test runs yet. <a href="/generate" class="text-primary hover:underline">Generate your first one!</a></p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="mt-6 bg-white rounded-lg shadow p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Quick Actions</h2>
+    <div class="flex flex-wrap gap-4">
+        <a href="/generate" class="bg-primary text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+            Generate Newsletter
+        </a>
+        <a href="/compare" class="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition">
+            Compare Runs
+        </a>
+        <form action="/generate" method="POST" class="inline">
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+                Quick Generate (Random 15)
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

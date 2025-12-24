@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Compare Runs - AI News Bot Preview{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow p-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">Compare Newsletter Runs</h1>
+
+    <p class="text-gray-600 mb-6">
+        Compare different prompt versions and generation runs side by side.
+    </p>
+
+    {% if comparisons %}
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="text-left text-gray-500 border-b bg-gray-50">
+                <tr>
+                    <th class="py-3 px-3">Date</th>
+                    <th class="py-3 px-3">Prompt Hash</th>
+                    <th class="py-3 px-3">Items</th>
+                    <th class="py-3 px-3">Tokens</th>
+                    <th class="py-3 px-3">Cost</th>
+                    <th class="py-3 px-3">Preview</th>
+                    <th class="py-3 px-3"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for run in comparisons %}
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="py-3 px-3">{{ run.date }}</td>
+                    <td class="py-3 px-3">
+                        <code class="bg-gray-100 px-2 py-1 rounded text-xs">{{ run.prompt_hash }}</code>
+                    </td>
+                    <td class="py-3 px-3">{{ run.items }}</td>
+                    <td class="py-3 px-3">{{ run.tokens }}</td>
+                    <td class="py-3 px-3">${{ "%.4f"|format(run.cost) }}</td>
+                    <td class="py-3 px-3">
+                        <div class="max-w-md text-gray-600 text-xs truncate" title="{{ run.preview }}">
+                            {{ run.preview[:100] }}...
+                        </div>
+                    </td>
+                    <td class="py-3 px-3">
+                        <a href="/run/{{ run.id }}" class="text-primary hover:underline">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Group by Prompt Hash -->
+    <div class="mt-8">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Prompt Versions</h2>
+
+        {% set prompt_groups = {} %}
+        {% for run in comparisons %}
+            {% if run.prompt_hash not in prompt_groups %}
+                {% set _ = prompt_groups.update({run.prompt_hash: []}) %}
+            {% endif %}
+            {% set _ = prompt_groups[run.prompt_hash].append(run) %}
+        {% endfor %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for hash, runs in prompt_groups.items() %}
+            <div class="border rounded-lg p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <code class="bg-gray-100 px-2 py-1 rounded text-xs">{{ hash }}</code>
+                    <span class="text-sm text-gray-500">{{ runs|length }} run(s)</span>
+                </div>
+                <div class="text-sm text-gray-600">
+                    <div>Avg tokens: {{ (runs|sum(attribute='tokens') / runs|length)|int }}</div>
+                    <div>Total cost: ${{ "%.4f"|format(runs|sum(attribute='cost')) }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% else %}
+    <p class="text-gray-500">No runs to compare yet. <a href="/generate" class="text-primary hover:underline">Generate your first newsletter!</a></p>
+    {% endif %}
+</div>
+{% endblock %}

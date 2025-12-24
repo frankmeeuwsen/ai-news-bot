@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Run #{{ run.id }} - AI News Bot Preview{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- Sidebar with metadata -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow p-4 sticky top-4">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">Run #{{ run.id }}</h2>
+
+            <dl class="space-y-3 text-sm">
+                <div>
+                    <dt class="text-gray-500">Date</dt>
+                    <dd class="font-medium">{{ run.date }}</dd>
+                </div>
+                <div>
+                    <dt class="text-gray-500">Status</dt>
+                    <dd>
+                        <span class="px-2 py-1 rounded text-xs {% if run.status == 'test_run' %}bg-yellow-100 text-yellow-800{% else %}bg-green-100 text-green-800{% endif %}">
+                            {{ run.status }}
+                        </span>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-gray-500">Provider</dt>
+                    <dd class="font-medium">{{ run.provider }}</dd>
+                </div>
+                <div>
+                    <dt class="text-gray-500">Model</dt>
+                    <dd class="font-medium">{{ run.model }}</dd>
+                </div>
+                <div>
+                    <dt class="text-gray-500">Items</dt>
+                    <dd class="font-medium">{{ run.items }}</dd>
+                </div>
+                <div>
+                    <dt class="text-gray-500">Tokens</dt>
+                    <dd class="font-medium">{{ run.tokens }}</dd>
+                </div>
+                <div>
+                    <dt class="text-gray-500">Cost</dt>
+                    <dd class="font-medium">${{ "%.4f"|format(run.cost) }}</dd>
+                </div>
+                <div>
+                    <dt class="text-gray-500">Runtime</dt>
+                    <dd class="font-medium">{{ "%.1f"|format(run.runtime) }}s</dd>
+                </div>
+                <div>
+                    <dt class="text-gray-500">Prompt Hash</dt>
+                    <dd class="font-mono text-xs">{{ run.prompt_hash }}</dd>
+                </div>
+            </dl>
+
+            <!-- Feedback Section -->
+            {% if summary_id %}
+            <div class="mt-6 pt-4 border-t">
+                <h3 class="font-semibold text-gray-800 mb-3">Feedback</h3>
+                <div class="flex gap-2 mb-3">
+                    <button onclick="submitFeedback('thumbs_up', 1)" class="flex-1 bg-green-100 hover:bg-green-200 text-green-800 py-2 rounded transition" title="Good">
+                        <span class="text-xl">+</span>
+                    </button>
+                    <button onclick="submitFeedback('thumbs_down', -1)" class="flex-1 bg-red-100 hover:bg-red-200 text-red-800 py-2 rounded transition" title="Bad">
+                        <span class="text-xl">-</span>
+                    </button>
+                </div>
+
+                {% if feedbacks %}
+                <div class="text-xs text-gray-500 space-y-1">
+                    {% for fb in feedbacks %}
+                    <div class="flex justify-between">
+                        <span>{{ fb.type }}</span>
+                        <span>{{ fb.timestamp }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="mt-6 pt-4 border-t space-y-2">
+                <a href="/generate" class="block text-center bg-primary text-white py-2 rounded hover:bg-blue-600 transition">
+                    New Generation
+                </a>
+                <a href="/" class="block text-center border py-2 rounded hover:bg-gray-50 transition">
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Newsletter Content -->
+    <div class="lg:col-span-3">
+        <div class="bg-white rounded-lg shadow">
+            <!-- Tabs -->
+            <div class="border-b">
+                <nav class="flex">
+                    <button onclick="showTab('preview')" id="tab-preview" class="px-4 py-3 border-b-2 border-primary text-primary font-medium">
+                        Preview
+                    </button>
+                    <button onclick="showTab('markdown')" id="tab-markdown" class="px-4 py-3 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                        Markdown
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Preview Tab -->
+            <div id="content-preview" class="p-6 newsletter-content">
+                {{ newsletter_html|safe }}
+            </div>
+
+            <!-- Markdown Tab -->
+            <div id="content-markdown" class="p-6 hidden">
+                <pre class="bg-gray-50 p-4 rounded overflow-x-auto text-sm whitespace-pre-wrap">{{ newsletter_text }}</pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const summaryId = {{ summary_id or 'null' }};
+
+    function showTab(tab) {
+        // Hide all content
+        document.getElementById('content-preview').classList.add('hidden');
+        document.getElementById('content-markdown').classList.add('hidden');
+
+        // Reset all tabs
+        document.getElementById('tab-preview').classList.remove('border-primary', 'text-primary');
+        document.getElementById('tab-preview').classList.add('border-transparent', 'text-gray-500');
+        document.getElementById('tab-markdown').classList.remove('border-primary', 'text-primary');
+        document.getElementById('tab-markdown').classList.add('border-transparent', 'text-gray-500');
+
+        // Show selected
+        document.getElementById('content-' + tab).classList.remove('hidden');
+        document.getElementById('tab-' + tab).classList.remove('border-transparent', 'text-gray-500');
+        document.getElementById('tab-' + tab).classList.add('border-primary', 'text-primary');
+    }
+
+    function submitFeedback(type, value) {
+        if (!summaryId) return;
+
+        fetch('/api/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                summary_id: summaryId,
+                type: type,
+                value: value
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('Feedback submitted!');
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(err => alert('Error: ' + err));
+    }
+</script>
+{% endblock %}

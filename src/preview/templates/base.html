@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI News Bot Preview{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .newsletter-content h2 { font-size: 1.5rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #1e40af; }
+        .newsletter-content h3 { font-size: 1.25rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.25rem; }
+        .newsletter-content p { margin-bottom: 0.75rem; line-height: 1.6; }
+        .newsletter-content ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 0.75rem; }
+        .newsletter-content li { margin-bottom: 0.25rem; }
+        .newsletter-content strong { font-weight: 600; }
+        .newsletter-content a { color: #2563eb; text-decoration: underline; }
+        .newsletter-content hr { margin: 1.5rem 0; border-color: #e5e7eb; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <a href="/" class="text-xl font-bold text-gray-800">AI News Bot Preview</a>
+                <div class="space-x-4">
+                    <a href="/" class="text-gray-600 hover:text-primary">Home</a>
+                    <a href="/generate" class="text-gray-600 hover:text-primary">Generate</a>
+                    <a href="/compare" class="text-gray-600 hover:text-primary">Compare</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-white border-t mt-12 py-4">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
+            AI News Bot Test Suite
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
