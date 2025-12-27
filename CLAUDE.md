@@ -194,7 +194,7 @@ Een automatische nieuwsbot die RSS feeds verzamelt, cureert met AI (via OpenRout
 1. **Server Details**
    - Host: `116.203.122.56` (Hetzner)
    - User: `frank` (sudo)
-   - OS: Ubuntu 20.04 (Python 3.8)
+   - OS: Ubuntu (Python 3.10.12)
    - Locatie: `/home/frank/apps/ai-news-bot`
    - SSH Key: `~/.ssh/dtd_rsync`
    - SSH Commando: `ssh -i ~/.ssh/dtd_rsync frank@116.203.122.56`
