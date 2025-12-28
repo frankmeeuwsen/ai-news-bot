@@ -1,95 +1,94 @@
 # Stage 2: News Summarization Prompt
 
-You are a senior AI industry analyst. Create a scannable, high-impact news digest for the {count} pre-selected news items below using Smart Brevity principles.
+# Nieuwsbrief Samenvatting - Smart Brevity Format
+
+Je bent een senior AI-analist. Maak een scanbarebare nieuwsbrief van de {count} geselecteerde nieuwsitems hieronder. Gebruik het Smart Brevity format voor maximale impact en leesbaarheid.
 
 {selected_news}
 
-## OUTPUT STRUCTURE:
+## FORMAT PER NIEUWSITEM
 
-Organize news items into relevant categories (use only categories that have news):
-1. **Large Language Models & Foundation Models** - LLM updates, new model releases, benchmarks
-2. **AI Agents & Autonomous Systems** - Agent frameworks, autonomous AI developments
-3. **Multimodal AI** - Vision, audio, video AI capabilities
-4. **Research & Academic Breakthroughs** - Papers, scientific discoveries, new methods
-5. **Product Launches & Updates** - New products, feature releases, API updates
-6. **AI Infrastructure & Hardware** - Chips, GPUs, training infrastructure, cloud services
-7. **Healthcare & Biomedical AI** - Medical AI, drug discovery, diagnostics
-8. **Robotics & Autonomous Vehicles** - Robots, self-driving, embodied AI
-9. **Enterprise & Industry Applications** - B2B solutions, industry-specific AI
-10. **Funding & Market Dynamics** - Investments, acquisitions, valuations
-11. **Policy & Regulation** - Government policies, AI governance, ethics
-12. **Open Source & Community** - Open source projects, community developments
-13. **Work and creativity** - Creative use of LLM in art, advertising and open source, LLM and the future of work
+Gebruik deze exacte structuur:
 
-## SMART BREVITY FORMAT (AXIOS-STYLE):
+### [Kop - max 10 woorden, actieve werkwoorden]
 
-For EACH news item, use this EXACT structure:
+**Waarom het belangrijk is:** [1 zin - wat betekent dit voor de lezer]
 
-### [Headline - max 10 words, active voice]
+**Het grote plaatje:** [2-3 zinnen - wat is er gebeurd, welke harde feiten en cijfers]
 
-**Why it matters:** [1 sentence - the significance for readers]
+**Belangrijkste details:**
+- [Feit 1 - met cijfer of concrete specificatie]
+- [Feit 2 - technische detail of toepassing]
+- [Feit 3 - beschikbaarheid of impact]
 
-**The big picture:** [2-3 sentences - what happened, key facts, numbers]
+**Volgende stap:** [1 zin - tijdlijn, beschikbaarheid of gevolg]
 
-**Key details:**
-- [Bullet point 1 - concrete fact or metric]
-- [Bullet point 2 - technical detail or specification]
-- [Bullet point 3 - business impact or availability]
-
-**What's next:** [1 sentence - timeline, availability, or implications]
-
-[Bron: Source Name](URL)
+[Bron: Naam](URL)
 
 ---
 
-## EXAMPLE:
+## VOORBEELD
 
-### Google lanceert Gemini 3 Flash tegen fractie van kosten
+### OpenAI verdubbelt snelheid GPT-4 Turbo
 
-**Why it matters:** Bedrijven krijgen toegang tot frontier AI-kwaliteit zonder enterprise-budget.
+**Waarom het belangrijk is:** Chatbots en AI-tools worden twee keer zo snel zonder extra kosten.
 
-**The big picture:** Google introduceert Gemini 3 Flash, een model dat topniveau-prestaties levert tegen lagere kosten dan voorgangers. Het richt zich op snelheid en efficiency voor productieomgevingen waar schaal cruciaal is.
+**Het grote plaatje:** OpenAI brengt een nieuwe versie uit van GPT-4 Turbo die 50% sneller werkt bij dezelfde prijs. De update richt zich op real-time toepassingen zoals klantenservice en live vertaling.
 
-**Key details:**
-- Geoptimaliseerd voor real-time applicaties: chatbots, contentgeneratie, codeassistentie
-- Beschikbaar via Google AI Platform en API's
-- Directe concurrent voor OpenAI's GPT-4o-mini en Anthropic's Haiku
+**Belangrijkste details:**
+- Responstijd daalt van 2 seconden naar 1 seconde gemiddeld
+- Beschikbaar via API voor bestaande klanten vanaf volgende week
+- Gratis upgrade, geen prijswijziging ten opzichte van huidige versie
 
-**What's next:** Ontwikkelaars kunnen direct starten via Google's API console.
+**Volgende stap:** Ontwikkelaars krijgen automatisch toegang via hun bestaande API-sleutel.
 
-[Bron: Google AI Blog](https://blog.google/products/gemini/gemini-3-flash/)
+[Bron: OpenAI Blog](https://openai.com/blog/gpt4-turbo-speed)
 
 ---
 
-## SCHRIJFSTIJL:
+## CATEGORIEËN
 
-**Kort en krachtig**
-- Headlines: max 10 woorden, actieve werkwoorden
-- Why it matters: exact 1 zin, focus op lezerwaarde
-- Bullets: begin met concrete cijfers of feiten
-- Geen modaaltaal (zou, kunnen, mogelijk)
-- Tegenwoordige tijd
+Groepeer items onder deze categorieën (gebruik alleen categorieën met nieuws):
 
-**Scanbaarheid**
+1. **Modellen & benchmarks** - Nieuwe LLM's, updates, prestaties
+2. **Producten & tools** - Launches, features, API's, agents
+3. **Onderzoek & doorbraken** - Papers, methodes, wetenschappelijke ontwikkelingen
+4. **Toepassingen** - Healthcare, enterprise, industrie-specifieke AI
+5. **Infrastructuur** - Hardware, chips, cloud, training
+6. **Beleid & regelgeving** - Wetgeving, governance, ethiek
+7. **Open source & community** - Projecten, frameworks, gemeenschap
+
+## SCHRIJFREGELS
+
+**Taal en structuur**
+- B1 Nederlands: maak jargon eenvoudig
+- Actieve werkwoorden, tegenwoordige tijd
+- Stellig: geen "zou kunnen", "mogelijk", "misschien"
+- Bullets voor details, geen lange alinea's
 - Witregel tussen secties
-- Bullets voor alle details
-- Geen lange lopende tekst
-- Key details: 3-4 bullets max
 
-**Nederlandse context**
-- Leg relevantie uit voor Nederlandse bedrijven waar van toepassing
-- Vertaal jargon direct naar begrijpelijke taal
-- Concrete voorbeelden van toepassingen
+**Concrete informatie**
+- Begin bullets met cijfers of feiten waar mogelijk
+- Noem percentages, aantallen, tijdslijnen
+- Vertaal jargon direct ("language model" → "taalmodel")
+- Geef Nederlandse context waar relevant
 
-## QUALITY REQUIREMENTS:
-- Summarize ALL {count} items provided above (no skipping)
-- Each item follows the EXACT Smart Brevity format above
-- Include specific numbers, metrics, and data when available
-- Maintain balanced coverage across different categories
-- All sources must have clickable markdown links
+**Bronnen**
+- Altijd klikbare link: [Bron: Naam](URL)
+- Naam is de website of publicatie
 
-## AVOID:
-- Long paragraphs (use bullets instead)
-- Generic statements without specifics
-- Missing any section (Why it matters, Big picture, Key details, What's next)
-- Skipping any news items
+## KWALITEITSEISEN
+
+- Vat ALLE {count} items samen
+- Elk item volgt exact het format hierboven
+- Volgorde: nieuwste eerst, daarna op belang
+- Spreiding over categorieën: vermijd clusters
+- Elke sectie (waarom belangrijk, grote plaatje, etc.) is verplicht
+
+## VERMIJD
+
+- Vage uitspraken zonder cijfers
+- Lange zinnen of alinea's
+- Ontbrekende secties
+- Items overslaan
+- Bronnen zonder link

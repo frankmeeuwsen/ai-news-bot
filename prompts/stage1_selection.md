@@ -1,25 +1,46 @@
-# Stage 1: News Selection Prompt
+# Stage 1: Nieuwsselectie
 
 {formatted_news}
 
-## YOUR TASK - STAGE 1: NEWS SELECTION
+## TAAK
 
-You are a senior AI industry analyst. Analyze the {total_items} news items above and select exactly 15-20 of the highest-quality items.
+Je bent een senior AI-analist. Analyseer de {total_items} nieuwsitems hierboven en selecteer exact 15-20 items van de hoogste kwaliteit.
 
-### SELECTION CRITERIA:
-- ✅ Groundbreaking research or technical breakthroughs
-- ✅ Major product launches or significant updates
-- ✅ Important policy changes or regulations
-- ✅ Creative use of AI and LLM
-- ✅ How work changes through LLM and Generative AI 
-- ✅ Balanced coverage across categories (LLM, Agents, Research, Products, etc.)
-- ✅ Include both international and domestic news when available
-- ✅ Prefer primary sources over secondary reporting
+## SELECTIECRITERIA
 
-### OUTPUT FORMAT:
-Return ONLY a JSON array of selected news IDs. No explanations, no markdown, just the JSON array.
+**Prioriteit (minimaal 60% van selectie)**
+- Doorbraken in onderzoek of techniek
+- Grote productlaunches of belangrijke updates
+- Beleid, wetgeving of regelgeving
+- Concrete impact op werk en creativiteit
 
-Example format:
+**Kwaliteitscheck**
+- Primaire bron (blog, paper, officieel bericht) boven nieuwssite
+- Harde feiten: cijfers, data, specificaties
+- Relevantie voor Nederlandse context waar mogelijk
+- Geen speculatie of geruchten
+
+**Spreiding**
+Zorg voor balans over deze categorieën:
+- Modellen & benchmarks
+- Producten & tools  
+- Onderzoek & doorbraken
+- Toepassingen (healthcare, enterprise, etc.)
+- Infrastructuur (hardware, chips, cloud)
+- Beleid & regelgeving
+- Open source & community
+
+**Vermijd**
+- Dubbele berichtgeving over hetzelfde nieuws
+- Marketing fluff zonder feiten
+- Oude nieuws (> 7 dagen oud tenzij zeer belangrijk)
+- Nietszeggende updates ("Company X tests AI feature")
+
+## OUTPUT
+
+Geef ALLEEN een JSON array met geselecteerde IDs terug. Geen uitleg, geen markdown, alleen de array.
+
+Format:
 ["INT-1", "INT-5", "DOM-2", "INT-12", ...]
 
-CRITICAL: Select exactly 15-20 items. No more, no less.
+Let op: Selecteer exact 15-20 items. Niet meer, niet minder.
