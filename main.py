@@ -12,6 +12,7 @@ from src.news import NewsGenerator
 from src.database import init_db
 from src.notifiers import (
     EmailNotifier,
+    ResendNotifier,
     WebhookNotifier,
     SlackNotifier,
     TelegramNotifier,
@@ -97,7 +98,14 @@ def main():
                 # Send email notification if enabled
                 if "email" in notification_methods:
                     logger.info(f"Sending email notification for {language.upper()}...")
-                    email_notifier = EmailNotifier()
+
+                    # Select email provider based on config
+                    email_provider = config.email_provider
+                    if email_provider == "resend":
+                        email_notifier = ResendNotifier()
+                    else:
+                        email_notifier = EmailNotifier()
+
                     if email_notifier.send(news_digest, language=language):
                         lang_results["sent"].append("email")
                         logger.info(f"Email notification sent successfully for {language.upper()}")

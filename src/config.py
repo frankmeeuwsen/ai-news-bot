@@ -225,6 +225,11 @@ class Config:
         return self.config_data.get("database", {}).get("cache", {}).get("deduplication", True)
 
     @property
+    def email_provider(self) -> str:
+        """Get the email provider to use (gmail or resend)"""
+        return self.config_data.get("notifications", {}).get("email_provider", "gmail").lower()
+
+    @property
     def llm_provider(self) -> str:
         """Get the LLM provider to use (claude or deepseek)"""
         # Check environment variable first, then config file

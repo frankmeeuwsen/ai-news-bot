@@ -55,6 +55,16 @@ database:
     ttl_hours: 36  # Hergebruik items tot 36 uur oud
     deduplication: true  # Skip duplicaten binnen run (op basis van GUID/link)
 
+notifications:
+  # Email provider: 'gmail' or 'resend'
+  # Gmail: Free but less reliable for automated sending
+  # Resend: Transactional email service with better deliverability (100 emails/day free)
+  email_provider: resend
+
+  # Optional: Custom subject line template
+  # Available variables: {date}, {language}
+  # subject_template: "AI News Digest - {date} [{language}]"
+
 logging:
   level: INFO
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

@@ -99,13 +99,23 @@ Add the following secrets:
 
 #### 📧 Email Secrets (if using email notifications)
 
+**Option 1: Resend (Recommended)**
+
+| Secret Name     | Example Value           | Description                        |
+| --------------- | ----------------------- | ---------------------------------- |
+| `RESEND_API_KEY` | `re_xxxxxxxxxxxxx`     | Your Resend API key                |
+| `RESEND_FROM`   | `news@yourdomain.com`   | Verified sender email address      |
+| `EMAIL_TO`      | `recipient@example.com` | Recipient email address            |
+
+**Option 2: Gmail (Less reliable)**
+
 | Secret Name          | Example Value           | Description                                                                    |
 | -------------------- | ----------------------- | ------------------------------------------------------------------------------ |
 | `GMAIL_ADDRESS`      | `you@gmail.com`         | Your Gmail address                                                             |
 | `GMAIL_APP_PASSWORD` | `xxxx xxxx xxxx xxxx`   | Gmail App Password ([Get one here](https://myaccount.google.com/apppasswords)) |
 | `EMAIL_TO`           | `recipient@example.com` | Recipient email address                                                        |
 
-See [Email Setup Guide](#email-setup-guide) for detailed Gmail configuration instructions.
+See [Email Setup Guide](#email-setup-guide) for detailed configuration instructions.
 
 #### 🌍 Optional Secrets
 
@@ -182,10 +192,17 @@ LLM_PROVIDER=claude  # Options: 'claude' or 'deepseek'
 ANTHROPIC_API_KEY=your_api_key_here      # For Claude
 DEEPSEEK_API_KEY=your_deepseek_api_key   # For DeepSeek
 
-# Gmail Configuration (easy setup!)
-GMAIL_ADDRESS=your_email@gmail.com
-GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx   # 16-char App Password (NOT your Gmail password)
+# Email Configuration - Choose ONE:
+
+# Option 1: Resend (Recommended - reliable delivery)
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+RESEND_FROM=news@yourdomain.com          # Use your verified domain
 EMAIL_TO=recipient@example.com
+
+# Option 2: Gmail (Free but less reliable)
+# GMAIL_ADDRESS=your_email@gmail.com
+# GMAIL_APP_PASSWORD=xxxx xxxx xxxx xxxx   # 16-char App Password (NOT your Gmail password)
+# EMAIL_TO=recipient@example.com
 
 # Optional: Webhook Configuration
 WEBHOOK_URL=https://your-webhook-url.com/endpoint
@@ -686,7 +703,56 @@ Run the bot locally and check the generated HTML email content.
 
 ## Email Setup Guide
 
-Gmail SMTP is the easiest way to send emails - just use your existing Gmail account!
+Choose your email provider for sending newsletters:
+
+### Option 1: Resend (Recommended)
+
+**Best for**: Reliable transactional email delivery with better inbox placement than Gmail.
+
+**Benefits:**
+- 99%+ deliverability rate
+- 100 emails/day free tier
+- Custom domain support (`news@yourdomain.com`)
+- No daily limits or spam flags
+- Professional email service
+
+**Setup:**
+
+1. **Create Resend Account**
+   - Sign up at [resend.com](https://resend.com)
+   - Get your API key from the dashboard
+
+2. **Verify Your Domain** (Optional but recommended)
+   - Go to [Domains](https://resend.com/domains)
+   - Add your domain (e.g., `yourdomain.com`)
+   - Add DNS records (SPF, DKIM) to your domain
+   - Wait for verification (~5-60 minutes)
+
+3. **Configure Environment**
+   ```env
+   # Resend Configuration
+   RESEND_API_KEY=re_xxxxxxxxxxxxx
+   RESEND_FROM=news@yourdomain.com  # Use your verified domain
+   EMAIL_TO=recipient@example.com
+   NOTIFICATION_METHODS=email
+   ```
+
+4. **Update config.yaml**
+   ```yaml
+   notifications:
+     email_provider: resend  # Use 'resend' instead of 'gmail'
+   ```
+
+That's it! Resend is ready to deliver your newsletters.
+
+### Option 2: Gmail SMTP (Free but less reliable)
+
+**Best for**: Testing or personal use only.
+
+**Limitations:**
+- May be flagged as spam by Gmail's filters
+- Less reliable for automated/server-based sending
+- Subject to Gmail's sending limits
 
 ### Step 1: Enable 2-Step Verification
 
