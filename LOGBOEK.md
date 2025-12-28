@@ -216,4 +216,72 @@
 
 ---
 
-Last updated: 2025-12-23
+## 2025-12-28: Resend Email Provider & Forgejo SSH Fix
+
+**Context:** Gmail SMTP rejection na 2 weken stabiele werking. Migratie naar Resend voor betrouwbaardere email delivery. Forgejo SSH authenticatie gefixed met nieuwe ED25519 key.
+
+**Doorgevoerde wijzigingen:**
+
+1. **Resend Email Provider**
+   - Aangemaakt: `src/notifiers/resend_notifier.py`
+   - Config optie: `notifications.email_provider` (gmail/resend)
+   - Dependencies: `resend>=0.8.0` in requirements.txt
+   - Environment: `RESEND_API_KEY`, `RESEND_FROM`, `EMAIL_TO`
+   - Voordelen: 99%+ deliverability, 100 emails/dag gratis, custom domein support
+
+2. **Forgejo SSH Key Fix**
+   - Probleem: `git.dutchstack.nl` SSH authenticatie faalde (Permission denied)
+   - Oorzaak: Server upgrade gisteren, oude ED25519 key werkte niet meer
+   - Oplossing: Nieuwe ED25519 key gemaakt (`id_ed25519_forgejo`)
+   - SSH config: Port 2222, IdentitiesOnly yes
+   - Key naam in Forgejo: `frank@macbook-ai-news-bot-forgejo`
+   - Getest: Lokaal en server kunnen nu beide git pull van Forgejo
+
+3. **Email Provider Selection**
+   - main.py: Dynamische notifier selectie op basis van config
+   - Backward compatible: Gmail blijft werken als fallback
+   - Test script: `test_resend.py` voor lokaal testen
+
+4. **Documentatie**
+   - README.md: Resend setup guide toegevoegd (Option 1: Recommended)
+   - Gmail downgraded naar Option 2 met waarschuwing over betrouwbaarheid
+   - Environment variabelen gedocumenteerd voor beide providers
+
+**Technische Details:**
+
+- Resend API: Transactional email service, professioneler dan SMTP
+- SSH Port: 2222 (niet standaard 22) voor Forgejo
+- Key type: ED25519 (moderner dan RSA, korter, sneller)
+- Config path: `~/.ssh/config` (lokaal + server)
+
+**Belangrijke Beslissingen:**
+
+- Resend als recommended provider (Gmail = testing only)
+- Nieuwe SSH key ipv oude key debuggen (sneller, cleaner)
+- Port 2222 expliciet in SSH config (was impliciet in oude setup)
+- Test script voor snelle verificatie zonder volledige nieuwsbrief run
+
+**Deployment Status:**
+
+- Code gepulled naar server: commit d877b38 (Resend integratie)
+- Dependencies geïnstalleerd: resend package
+- Service herstart: ai-news-bot.timer
+- Volgende run: Maandag 29 dec 06:00 UTC (07:00 Amsterdam)
+- Forgejo Actions: Nu werkend (SSH key gefixed)
+
+**Git Status:**
+
+- Branch: `main`
+- Laatste commit: `d877b38` - feat: add Resend email provider
+- Working tree: Uncommitted changes (dit logboek)
+- SSH keys: Nieuwe `id_ed25519_forgejo` in gebruik
+
+**Open Items:**
+
+- Monitoring eerste Resend delivery morgenochtend
+- Eventueel Gmail variabelen verwijderen uit server .env
+- Domein verificatie in Resend (optioneel, voor `nieuws@frankmeeuwsen.com`)
+
+---
+
+Last updated: 2025-12-28
