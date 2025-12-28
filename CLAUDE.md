@@ -88,6 +88,37 @@ Een automatische nieuwsbot die RSS feeds verzamelt, cureert met AI (via OpenRout
 3. **Prompt verbetering:** Focus op Axios-stijl (bulletpoints, "why it matters", korte paragrafen)
 4. **RSS monitoring:** Automatisch detecteren van broken feeds voorkomt stille failures
 
+**⚠️ KRITIEKE WERKWIJZE - Anti-Duplicatie Protocol:**
+
+**ALTIJD voordat je een taak uitvoert of een TODO toevoegt:**
+
+1. **Check TODO.md eerst:**
+   - Grep/zoek of de taak al bestaat (completed of open)
+   - Check of het een herhaling is van eerder werk
+   - Wijs Frank erop als hij iets dubbel vraagt
+
+2. **Check git history:**
+   - Zoek in commits of het al is gedaan
+   - Check LOGBOEK.md voor eerdere sessies
+   - Refereer naar eerdere oplossingen
+
+3. **Zeg het hardop:**
+   - "Ik zie dat dit al in TODO.md staat onder [sectie]"
+   - "Dit lijkt op wat we deden op [datum], zie commit [hash]"
+   - "Wil je dit opnieuw doen of de bestaande TODO afmaken?"
+
+**Voorbeeld:**
+```
+Frank: "Kunnen we een testmodus maken voor prompts?"
+Claude: "Ik zie dat dit al in TODO.md staat (regel 33-39) als
+'Testmodus voor Prompts' onder High Priority. Wil je dat ik
+dit nu ga implementeren, of vroeg je iets anders?"
+```
+
+**Waarom kritiek:** Frank vraagt soms dingen opnieuw omdat hij vergeet
+wat er al is. Jij moet hem scherp houden en voorkomen dat werk dubbel
+wordt gedaan of TODO's dubbel worden toegevoegd.
+
 **Configuratie Locaties:**
 
 - RSS feeds: `/sources.yaml`
@@ -231,6 +262,7 @@ Een automatische nieuwsbot die RSS feeds verzamelt, cureert met AI (via OpenRout
 | Status timer | `systemctl status ai-news-bot.timer` |
 | Volgende run | `systemctl list-timers ai-news-bot.timer` |
 | Handmatig draaien | `sudo systemctl start ai-news-bot.service` |
+| Herladen wijzigingen | `sudo systemctl restart ai-news-bot.service` |
 | Logs bekijken | `tail -f ~/apps/ai-news-bot/logs/output.log` |
 | Errors bekijken | `tail -f ~/apps/ai-news-bot/logs/error.log` |
 
