@@ -216,6 +216,54 @@
 
 ---
 
+## 2025-12-28: Prompt Refactor - B1 Nederlands & Smart Brevity
+
+**Context:** Prompts waren in Engels en te technisch. Refactor naar B1 Nederlands met duidelijkere Smart Brevity instructies voor betere output kwaliteit.
+
+**Doorgevoerde wijzigingen:**
+
+1. **Stage 1: Nieuwsselectie**
+   - Volledig vertaald naar Nederlands
+   - Duidelijke prioritering: 60% hard news (doorbraken, launches, beleid)
+   - Uitgebreide kwaliteitscriteria met voorbeelden
+   - Betere spreiding over 7 categorieën (modellen, producten, onderzoek, etc.)
+   - Expliciete "vermijd" sectie: dubbele berichtgeving, marketing fluff, oude nieuws
+
+2. **Stage 2: Samenvatting**
+   - Vertaald naar B1 Nederlands schrijfniveau
+   - Concreter voorbeeld met cijfers en feiten
+   - Meer nadruk op meetbare details (percentages, aantallen, tijdslijnen)
+   - Nederlandse context waar relevant
+   - Actieve taal, stellige schrijfstijl, geen modaalwoorden
+
+3. **Smart Brevity Format Verbeteringen**
+   - Structuur per item: Kop → Waarom belangrijk → Grote plaatje → Details (3 bullets) → Volgende stap
+   - Koppen: max 10 woorden, actieve werkwoorden
+   - Details: begin bullets met cijfers waar mogelijk
+   - Vertaal jargon direct ("language model" → "taalmodel")
+
+**Rationale:**
+
+- B1 Nederlands maakt output toegankelijker voor Nederlandse doelgroep
+- Concrete cijfers en feiten geven meer waarde dan vage beschrijvingen
+- Duidelijkere instructies = consistentere AI output
+- Focus op scanbaarheid: bullets boven alinea's
+
+**Git Status:**
+
+- Branch: `main`
+- Laatste commit: `d6c0340` - refactor: improve prompt clarity with Dutch B1 and Smart Brevity format
+- Working tree: Uncommitted changes (dit logboek)
+- Pushed naar: origin (dutchstack) en github
+
+**Volgende Stappen:**
+
+- Testen nieuwe prompts met volgende newsletter run (morgen 07:00)
+- Evalueren output kwaliteit: meer cijfers, betere koppen, duidelijkere structuur
+- Eventueel fine-tunen op basis van eerste resultaten
+
+---
+
 ## 2025-12-28: Resend Email Provider & Forgejo SSH Fix
 
 **Context:** Gmail SMTP rejection na 2 weken stabiele werking. Migratie naar Resend voor betrouwbaardere email delivery. Forgejo SSH authenticatie gefixed met nieuwe ED25519 key.
