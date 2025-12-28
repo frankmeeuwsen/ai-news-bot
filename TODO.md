@@ -143,6 +143,16 @@
 - [ ] Taal-specifieke news categorieën
 - [ ] Timezone-aware scheduling per taal
 
+### 📋 Infrastructure & Dependencies
+- [ ] **Dependency Mapping & Overzicht**
+  - Maak visueel overzicht van alle systeem componenten en hun afhankelijkheden
+  - Documenteer: Servers (Hetzner), DNS (Cloudflare), Git (Forgejo), Email (Resend), Domains
+  - Per component: Wat doet het, waarom nodig, wat breekt als het uitvalt
+  - Scan mogelijkheden: Port 2222 voor Forgejo SSH, Resend API endpoints, etc.
+  - Single-page reference document voor troubleshooting
+  - Formats: Mermaid diagram + tabel met kritieke configuratie
+  - Update bij elke infrastructuur wijziging
+
 ## Low Priority
 
 ### 🎨 UI/UX
@@ -157,6 +167,22 @@
 
 ## Research / Future Ideas
 
+### 🏗️ Infrastructure Simplificatie
+- [ ] **Self-Hosted Stack Research**
+  - Evalueer alternatieven voor huidige externe dependencies
+  - Email: Postfix/Dovecot op eigen server vs Resend
+  - Git: Blijf bij Forgejo (already self-hosted ✓)
+  - DNS: Evalueer alternatieven voor Cloudflare (PowerDNS?)
+  - Monitoring: Self-hosted Uptime Kuma / Grafana
+  - Trade-offs documenteren:
+    - Betrouwbaarheid: Managed vs Self-hosted
+    - Onderhoud: Time investment voor self-hosting
+    - Kosten: Monthly fees vs server resources
+    - Spam/Deliverability: Email reputatie opbouwen
+  - Eindgoal: Minimaliseer aantal externe diensten waar mogelijk
+  - Pragmatisch: Gebruik managed diensten waar self-hosting niet de moeite waard is
+
+### 🤖 AI & ML
 - [ ] Multi-modal nieuwsanalyse (images, video thumbnails)
 - [ ] Sentiment analysis op nieuwsitems
 - [ ] Trend detection over tijd
