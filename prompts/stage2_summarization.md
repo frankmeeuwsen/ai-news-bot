@@ -53,10 +53,11 @@ Groepeer items onder deze categorieën (gebruik alleen categorieën met nieuws):
 1. **Modellen & benchmarks** - Nieuwe LLM's, updates, prestaties
 2. **Producten & tools** - Launches, features, API's, agents
 3. **Onderzoek & doorbraken** - Papers, methodes, wetenschappelijke ontwikkelingen
-4. **Toepassingen** - Healthcare, enterprise, industrie-specifieke AI
-5. **Infrastructuur** - Hardware, chips, cloud, training
-6. **Beleid & regelgeving** - Wetgeving, governance, ethiek
-7. **Open source & community** - Projecten, frameworks, gemeenschap
+4. **Werk & Creativiteit** - AI in kenniswerk, creatieve sector, tools voor makers
+5. **Enterprise & Industrie** - Healthcare, zakelijke toepassingen, sector-specifiek
+6. **Infrastructuur** - Hardware, chips, cloud, training
+7. **Beleid & regelgeving** - Wetgeving, governance, ethiek
+8. **Open source & community** - Projecten, frameworks, gemeenschap
 
 ## SCHRIJFREGELS
 

@@ -23,9 +23,10 @@ Je bent een senior AI-analist. Analyseer de {total_items} nieuwsitems hierboven 
 **Spreiding**
 Zorg voor balans over deze categorieën:
 - Modellen & benchmarks
-- Producten & tools  
+- Producten & tools
 - Onderzoek & doorbraken
-- Toepassingen (healthcare, enterprise, etc.)
+- Werk & creativiteit (kenniswerk, creatieve sector, tools voor makers)
+- Enterprise & industrie (healthcare, zakelijke toepassingen, sector-specifiek)
 - Infrastructuur (hardware, chips, cloud)
 - Beleid & regelgeving
 - Open source & community
