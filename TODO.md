@@ -38,6 +38,17 @@
   - Handig voor prompt iteratie en testing
   - Optie om specifieke taal te testen zonder andere te versturen
 
+- [ ] **Raycast Integratie voor TODO Beheer**
+  - Maak Raycast script command voor snelle TODO toevoegingen
+  - Gebruik headless Claude via MCP/API voor intelligente TODO parsing
+  - Features:
+    - Natuurlijke taal input: "voeg toe: test nieuwe prompt variant"
+    - Automatische categorisatie (High/Medium/Low priority)
+    - Juiste sectie detectie (Content/Testing/Logging/etc.)
+    - Direct committen naar git met relevante message
+  - Workflow: Raycast → headless Claude → parse input → edit TODO.md → git commit
+  - Alternatief: Simpele template-based script zonder AI voor snelheid
+
 ### 🔧 Logging & Monitoring
 - [ ] **RSS Feed Health Check**
   - Detecteer niet-bestaande/broken RSS feeds tijdens fetch
@@ -101,6 +112,32 @@
 - [ ] Retry logic met exponential backoff
 - [ ] Parallelle RSS feed fetching (asyncio)
 
+### 📬 Email Interactiviteit
+- [ ] **Obsidian x-success URI voor Feedback**
+  - Voeg x-success URI toe aan email template voor thumbs up/down
+  - Opent Obsidian note met pre-filled feedback data
+  - URI format: `obsidian://x-callback-url/open?vault=VaultName&file=Feedback&x-success=...`
+  - Logs feedback naar Obsidian vault voor analyse
+
+- [ ] **Click Tracking in Email**
+  - Bijhouden welke nieuwslinks worden aangeklikt
+  - Unieke tracking parameters per link in email
+  - Analytics endpoint om clicks te registreren
+  - Koppel clicks aan user profiles voor personalisatie
+  - Privacy-vriendelijk: geen third-party trackers
+
+### 💾 Database Sync Verbeteringen
+- [ ] **Betere Failure Notificaties**
+  - Extra regel in macOS notificatie met specifieke error message
+  - Log waarom sync gefaald is (SSH timeout, bestand niet gevonden, etc.)
+  - Maak errors actionable voor troubleshooting
+
+- [ ] **Delayed Startup bij Reboot**
+  - Sync moet niet direct bij opstarten draaien
+  - Wacht 5-10 minuten na boot voordat eerste sync start
+  - Voorkomt race conditions met netwerk/SSH initialisatie
+  - Gebruik `StartCalendarInterval` + delay ipv immediate `StartOnMount`
+
 ### 🌍 Internationalisatie
 - [ ] Per-taal prompt templates (nu: generieke template)
 - [ ] Taal-specifieke news categorieën
@@ -160,4 +197,4 @@ def select_with_serendipity(items, user_profile, serendipity_ratio=0.15):
 
 ---
 
-Last updated: 2025-12-22
+Last updated: 2025-12-27
