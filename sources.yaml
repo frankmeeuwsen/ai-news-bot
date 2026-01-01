@@ -62,6 +62,18 @@ international:
   # Academic updates made readable (often covers creative papers)
   MarkTechPost: "https://www.marktechpost.com/feed/"
 
+# Blogs about AI Ethics, Policy, and Society
+  AI Ethics Lab: "https://aiethicslab.com/feed/"
+  AI Policy Exchange: "https://aipolicyexchange.org/feed/"
+  Data & Society: "https://datasociety.net/feed/"
+
+# Blogs on AI in Business and Industry
+  AI in Business: "https://aibusiness.com/feed/"
+  The AI Report: "https://theaireport.com/feed/"
+  AI Trends: "https://www.aitrends.com/feed/"
+  Simon Willison’s Weblog - AI in Industry: "https://simonwillison.net/atom/everything/"
+  The Neuron: "https://www.theneuron.ai/newsletter/rss.xml"
+
 # Language-specific sources
 languages:
   # Chinese (zh)
