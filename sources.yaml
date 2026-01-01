@@ -46,6 +46,8 @@ international:
   LangChain Blog: "https://blog.langchain.dev/rss/"
   # Hardware & Infrastructure driving LLMs
   NVIDIA Blog (AI Category): "https://blogs.nvidia.com/category/deep-learning/feed/"
+  # Safety, Ethics & Policy around AI
+  Gen AI Security: "https://genai.owasp.org/feed/"
 # AI for Creativity, Work & Culture
   # Prof. Ethan Mollick - The best source on how AI changes actual work/education
   One Useful Thing: "https://www.oneusefulthing.org/feed"
