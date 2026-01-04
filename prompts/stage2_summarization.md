@@ -75,12 +75,13 @@ Groepeer items onder deze categorieën (gebruik alleen categorieën met nieuws):
 - Geef Nederlandse context waar relevant
 
 **Bronnen**
-- Altijd klikbare link: [Bron: Naam](URL)
-- Naam is de website of publicatie
+- Format: `[Bron: Naam](URL)` waarbij Naam de website of publicatie is
+- Gebruik altijd de originele URL van het nieuwsitem
 
 ## KWALITEITSEISEN
 
-- Vat ALLE {count} items samen
+- **KRITIEK:** Vat ALLE {count} items samen - geen enkele mag worden overgeslagen
+- Als je de token limit nadert, maak items korter maar skip NOOIT items
 - Elk item volgt exact het format hierboven
 - Volgorde: nieuwste eerst, daarna op belang
 - Spreiding over categorieën: vermijd clusters
