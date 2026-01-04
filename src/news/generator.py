@@ -515,8 +515,17 @@ class NewsGenerator:
                         session.flush()  # Get selection.id
 
                         # Create AISummary record with structured fields
+                        # Generate plain text summary for backward compatibility
+                        summary_parts = []
+                        if summary_dict.get('why_matters'):
+                            summary_parts.append(f"Waarom belangrijk: {summary_dict['why_matters']}")
+                        if summary_dict.get('big_picture'):
+                            summary_parts.append(f"Het grote plaatje: {summary_dict['big_picture']}")
+                        summary_text = "\n\n".join(summary_parts) if summary_parts else summary_dict.get('title', '')
+
                         summary = AISummary(
                             selection_id=selection.id,
+                            summary_text=summary_text,  # For backward compatibility with NOT NULL constraint
                             title=summary_dict['title'],
                             why_matters=summary_dict.get('why_matters', ''),
                             big_picture=summary_dict.get('big_picture', ''),
