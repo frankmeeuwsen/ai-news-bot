@@ -156,9 +156,18 @@ class AISummary(Base):
     # Foreign key
     selection_id = Column(Integer, ForeignKey('ai_selections.id'), nullable=False, unique=True, index=True)
 
-    # Summary content
-    summary_text = Column(Text, nullable=False)  # Plain text versie
+    # Summary content (legacy - backward compatible)
+    summary_text = Column(Text, nullable=True)  # Plain text versie (was nullable=False)
     summary_html = Column(Text, nullable=True)  # HTML geformatteerd (toekomstig)
+
+    # Structured content (nieuw voor Obsidian integration)
+    title = Column(String(500), nullable=True)  # H3 kop van nieuwsitem
+    why_matters = Column(Text, nullable=True)  # "Waarom belangrijk" sectie
+    big_picture = Column(Text, nullable=True)  # "Het grote plaatje" sectie
+    key_details = Column(Text, nullable=True)  # Bulletpoints (newline-separated)
+    next_step = Column(Text, nullable=True)  # "Volgende stap" sectie
+    source_name = Column(String(200), nullable=True)  # Bron naam (bijv. "DeepMind Blog")
+    source_url = Column(String(1000), nullable=True)  # Bron URL
 
     # Metadata
     tokens_used = Column(Integer, nullable=True)
@@ -172,7 +181,7 @@ class AISummary(Base):
     feedbacks = relationship("UserFeedback", back_populates="summary", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"<AISummary(id={self.id}, selection_id={self.selection_id}, length={len(self.summary_text)})>"
+        return f"<AISummary(id={self.id}, selection_id={self.selection_id}, title='{self.title if self.title else 'N/A'}')>"
 
 
 class RSSHealth(Base):
