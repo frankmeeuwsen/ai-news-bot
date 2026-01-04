@@ -9,6 +9,7 @@ from datetime import datetime
 from src.config import Config
 from src.logger import setup_logger
 from src.news import NewsGenerator
+from src.newsletter import build_newsletter_html
 from src.database import init_db
 from src.notifiers import (
     EmailNotifier,
@@ -75,15 +76,25 @@ def main():
             logger.info("=" * 60)
 
             try:
-                # Generate news digest for this language
+                # Generate news digest for this language (returns run_id)
                 logger.info(f"Generating AI news digest in {language.upper()} from real-time sources...")
-                news_digest = news_gen.generate_news_digest_from_sources(
+                run_id = news_gen.generate_news_digest_from_sources(
                     language=language,
                     max_items_per_source=config.max_items_per_source,
                     max_tokens=config.llm_max_tokens
                 )
 
-                logger.info(f"News digest generated for {language.upper()} ({len(news_digest)} characters)")
+                logger.info(f"Newsletter run #{run_id} completed for {language.upper()}")
+
+                # Build HTML newsletter from database
+                logger.info(f"Building HTML newsletter from database...")
+                news_digest = build_newsletter_html(run_id)
+
+                if not news_digest:
+                    logger.warning(f"Failed to build newsletter HTML for run #{run_id}")
+                    raise Exception(f"Failed to build newsletter HTML for run #{run_id}")
+
+                logger.info(f"Newsletter HTML generated ({len(news_digest)} characters)")
                 logger.info("-" * 60)
                 logger.info(f"News Digest Preview ({language.upper()}):")
                 logger.info("-" * 60)
