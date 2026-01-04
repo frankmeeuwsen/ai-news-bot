@@ -1,5 +1,100 @@
 # AI News Bot - Logboek
 
+## 2026-01-04: Obsidian Integratie - Newsletter met Deep Links
+
+**Context:** Implementatie van Obsidian deep links in nieuwsbrief voor directe opslag van artikelen in Obsidian vault. Newsletter workflow aangepast om database-first te werken met structured summaries.
+
+**Doorgevoerde wijzigingen:**
+
+1. **Bug Fixes**
+   - `src/news/generator.py:239-240`: Runtime logging fix (None handling)
+   - `src/news/generator.py:245-290`: Nieuwe `get_digest_from_run()` functie
+   - `src/news/summary_parser.py:185-228`: Nieuwe `format_summaries_to_markdown()` functie
+
+2. **Obsidian URI Builder Verbeteringen**
+   - `src/obsidian/uri_builder.py:65`: Bestandsnamen niet meer URL-encoded (leesbare namen)
+   - `src/obsidian/uri_builder.py:83-99`: Dynamische frontmatter met `onderwerp` field
+   - Frontmatter `onderwerp` bevat nu `summary.why_matters` waarde
+   - File path: `4 - Resources/AI/{title}` met normale tekst
+
+3. **Newsletter Builder Workflow**
+   - `generate_test_newsletter.py`: Volledig herschreven voor database-driven workflow
+   - Gebruikt nu `build_newsletter_html()` voor Obsidian links
+   - Inline HTML template (geen dependency op EmailNotifier)
+   - Test output: 16-17 Obsidian links per newsletter
+
+4. **Test Tooling**
+   - `test_single_obsidian_link.py`: Debug tool voor individuele Obsidian URIs
+   - Toont decoded file path en content preview
+   - Verificatie van frontmatter formatting
+
+**Technische Details:**
+
+**Obsidian URI Format:**
+```
+obsidian://new?vault=frankopedia
+&file=4%20-%20Resources%2FAI%2F{title}
+&content={encoded_markdown}
+&silent=true
+```
+
+**Frontmatter Voorbeeld:**
+```yaml
+---
+aliases:
+context:
+  - "[[Thema - Artificial Intelligence]]"
+type:
+  - "[[Artikel]]"
+onderwerp: AI-systemen krijgen onterecht menselijke eigenschappen toegeschreven
+---
+```
+
+**Newsletter Workflow:**
+1. `generate_news_digest_from_sources()` → returns `run_id`
+2. Summaries opgeslagen in database met structured fields
+3. `build_newsletter_html(run_id)` → genereert HTML met Obsidian URIs
+4. Browser preview met werkende `[Obs]` links
+
+**Belangrijke Beslissingen:**
+
+- Database-first workflow: Digest tekst wordt niet meer direct gebruikt
+- Obsidian URIs gebouwd uit database summaries voor consistentie
+- Bestandsnamen leesbaar (geen URL encoding) voor betere UX
+- `onderwerp` frontmatter field bevat "why matters" voor filtering in Obsidian
+- Test scripts voor snelle verificatie zonder volledige newsletter run
+
+**Test Resultaten:**
+
+- Run #3: 19 items geselecteerd, 17 summaries opgeslagen (1 URL mismatch)
+- Run #4: 19 items geselecteerd, 17 Obsidian links gegenereerd
+- Run #5: 16 items geselecteerd, 16 Obsidian links gegenereerd
+- Bestandsnamen: Correct decoded (bv. "Google lanceert Gemini 3 Flash model")
+- Frontmatter: `onderwerp` field correct gevuld met why_matters
+
+**Code Files Aangepast:**
+
+- `src/news/generator.py`: Runtime fix + `get_digest_from_run()` helper
+- `src/news/summary_parser.py`: `format_summaries_to_markdown()` helper
+- `src/obsidian/uri_builder.py`: Dynamische frontmatter + bestandsnaam fix
+- `generate_test_newsletter.py`: Database-driven workflow
+- `test_single_obsidian_link.py`: Nieuw debug tool
+
+**Git Status:**
+
+- Branch: `main`
+- Working tree: Uncommitted changes (dit logboek + code fixes)
+- Next: Commit en push naar origin/github
+
+**Volgende Stappen:**
+
+- Testen Obsidian links in echte newsletter (klik + opslag)
+- Verificatie frontmatter in Obsidian vault
+- Evaluatie `onderwerp` field voor filtering/querying
+- Eventueel categorisatie toevoegen aan frontmatter
+
+---
+
 ## 2025-12-24: Geautomatiseerde Database Synchronisatie
 
 **Context:** Database sync van server naar lokaal voor development, geïmplementeerd via launchd agent.

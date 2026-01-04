@@ -41,15 +41,16 @@
 - **AI-Powered News Generation**: Generate comprehensive AI news digests using your preferred LLM provider
 - **Web Search Integration**: Optional DuckDuckGo web search for additional news sources
 - **Beautiful Email Formatting**: Automatically converts AI content to stunning HTML emails - no markdown, just clean professional design
+- **Obsidian Integration**: One-click deep links to save articles directly to your Obsidian vault with structured frontmatter
+- **Database Persistence**: SQLite database for RSS caching, cost tracking, and newsletter run history
 - **Customizable Prompts**: 9 pre-built templates (comprehensive, research, business, technical, etc.) or create your own
 - **Multilingual Support**: Generate news in 13+ languages including English, Chinese, Spanish, French, Japanese, and more
 - **Chinese News Sources**: Built-in support for Chinese AI news sources (36Kr, JiQiZhiXin, etc.)
-- **Multiple Notification Channels**: Supports email (Gmail SMTP), webhook, Slack, Telegram, and Discord notifications
+- **Multiple Notification Channels**: Supports email (Gmail SMTP, Resend), webhook, Slack, Telegram, and Discord notifications
 - **Flexible Configuration**: Easy-to-customize topics and notification settings via YAML config
 - **Automated Scheduling**: GitHub Actions workflow for daily automated execution
 - **Robust Error Handling**: Comprehensive logging and retry logic
 - **Email Client Compatible**: Works perfectly in Gmail, Outlook, Apple Mail, and mobile email apps
-- **Simple Email Setup**: Just use your Gmail account with App Password - no third-party email service needed
 
 ## 🚀 Deployment Options
 
