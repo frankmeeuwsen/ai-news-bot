@@ -2,6 +2,62 @@
 
 ## High Priority
 
+### 🔧 Obsidian Integration Fixes
+
+- [ ] **Escape Ongeldige Karakters in Obsidian Bestandsnamen**
+  - Probleem: Titels met `:`, `/`, `\` crashen Obsidian file creation
+  - Error: "File name cannot contain any of the following characters: \/:"
+  - Fix locatie: `src/obsidian/uri_builder.py` - `build_obsidian_uri()` functie
+  - Sanitize titel voordat deze als bestandsnaam gebruikt wordt
+  - Replace strategie:
+    - `:` → ` -` (dubbele punt naar spatie-dash)
+    - `/` → `-` (slash naar dash)
+    - `\` → `-` (backslash naar dash)
+    - `*` → `` (asterisk verwijderen)
+    - `?` → `` (vraagteken verwijderen)
+    - `"` → `'` (dubbele quote naar enkele)
+    - `<>|` → verwijderen
+  - Test met edge cases: "AI: De nieuwe revolutie", "GPT-4/Claude vergelijking"
+  - Frontmatter `onderwerp` field mag WEL deze karakters bevatten (is geen bestandsnaam)
+
+### 🚀 Deployment & Server Operations
+
+- [ ] **Pre-Deployment Checklist & Validation**
+  - Maak automated pre-deployment validation script (`scripts/pre-deploy-check.sh`)
+  - Checks voordat je naar server pusht:
+    - Git status: check uncommitted changes in kritieke files
+    - Models sync: vergelijk lokale `src/database/models.py` met laatste commit
+    - Database migrations: check of migratie scripts nodig zijn
+    - Dependency changes: diff `requirements.txt` sinds laatste deploy
+    - Config changes: check `.env` / `config.yaml` wijzigingen
+    - Breaking changes: grep naar `nullable=False` toevoegingen in models
+  - Output: Go/No-Go beslissing + lijst van actiepunten
+  - Integreer in git pre-push hook (optioneel, voor veiligheid)
+  - Documenteer deployment checklist in `DEPLOYMENT.md`
+
+- [ ] **Server Health Check Dashboard**
+  - Script dat server status checkt na deployment:
+    - Git commit hash (verwacht vs actueel)
+    - Database schema versie vs model definitie
+    - Python dependencies (requirements.txt vs installed)
+    - Service status (systemd ai-news-bot.service)
+    - Laatste run status (success/failure)
+    - Database record counts (sanity check)
+  - Output: Quick diagnostic overzicht
+  - Run via: `ssh dtd 'cd ~/apps/ai-news-bot && ./scripts/health-check.sh'`
+  - Gebruik bij troubleshooting deployment issues
+
+- [ ] **Deployment Smoke Tests**
+  - Automated test suite die na deployment draait op server
+  - Tests:
+    - Import test: `python -c "from src.database.models import AISummary; print(AISummary.__table__.columns.keys())"`
+    - Database connection: Check of `newsbot.db` toegankelijk is
+    - Model compatibility: Verify alle model fields matchen database schema
+    - Environment variables: Check critical env vars loaded
+    - Dependency imports: Test of alle imports werken
+  - Exit code 0 = deployment success, non-zero = rollback advised
+  - Integreer in Forgejo Actions workflow
+
 ### ✍️ Content & Writing Quality
 
 - [ ] **Prompt Verbetering via Leerproces**

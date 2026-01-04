@@ -350,4 +350,174 @@ Host dtd
 
 ---
 
-Last updated: 2025-12-24
+## Deployment Leerpunten & Best Practices
+
+### 2026-01-04: Obsidian Integration Deployment - Retrospective
+
+**Context:** Grote feature deployment (Obsidian deep links) met database schema wijzigingen en nieuwe structured fields in `AISummary` model.
+
+**Wat er misging:**
+
+1. **Uncommitted Critical Files (models.py)**
+   - **Probleem:** `src/database/models.py` met nieuwe kolommen was NIET gecommit toen `main.py` wel werd gepusht
+   - **Impact:** Server kreeg runtime errors: `'title' is an invalid keyword argument for AISummary`
+   - **Root cause:** Aanname dat alle gerelateerde wijzigingen automatisch gecommit waren
+   - **Gevolg:** 3 gefaalde deployment pogingen voordat dit ontdekt werd
+
+2. **Database Schema vs Code Mismatch**
+   - **Probleem:** `summary_text` kolom was `NOT NULL` in database, maar code gaf `None` mee
+   - **Impact:** SQLite IntegrityError bij elke summary save
+   - **Root cause:** `models.py` had `nullable=True` in code, maar database had nog oude schema
+   - **Gevolg:** Nog 2 extra deployment cycles om backward compatibility te fixen
+
+3. **Incomplete Pre-Deployment Validation**
+   - **Probleem:** Geen systematische check of alle gerelateerde files gecommit waren
+   - **Impact:** Incrementele fixes nodig in plaats van one-shot deployment
+   - **Root cause:** Te snel naar `git push` zonder volledige `git status` check
+   - **Gevolg:** 5 separate commits nodig om deployment werkend te krijgen
+
+4. **Aanname over Forgejo Auto-Deployment**
+   - **Probleem:** Wist dat Forgejo runner bestaat, maar vergat dit actief te verifiëren
+   - **Impact:** Onnodige SSH commando's om "handmatig" te deployen
+   - **Root cause:** Onvolledige mentale model van deployment pipeline
+   - **Gevolg:** Verwarring over waarom server "automatisch" updates kreeg
+
+**Commit History van de Chaos:**
+
+```
+7fd9380 - fix: update main.py to use run_id workflow         [main.py ALLEEN]
+bd05adf - feat: add structured fields to AISummary            [models.py - VERGETEN]
+eafb21b - fix: provide summary_text for backward compat       [generator.py - NULLABLE FIX]
+```
+
+**Totale Deployment Tijd:** ~45 minuten (had 5 minuten moeten zijn)
+
+**Wat WEL goed ging:**
+
+- Database migratie script werkte perfect first-time
+- Forgejo runner pipeline werkte betrouwbaar
+- Feature zelf (Obsidian URIs) werkte direct toen dependencies compleet waren
+- Server recovery was snel (geen data loss)
+
+---
+
+### 🎯 Deployment Checklist (VERPLICHT voor schema wijzigingen)
+
+**VOOR elke git push naar main met database/model wijzigingen:**
+
+1. **Git Status Audit**
+   ```bash
+   git status --short
+   # Check ALLE modified files in src/database/, src/news/, main.py
+   # Vraag jezelf: "Zijn deze wijzigingen gerelateerd?"
+   ```
+
+2. **Database Model Changes Check**
+   ```bash
+   git diff src/database/models.py
+   # Als dit diff toont → check of alle GEBRUIKERS van dit model ook gecommit zijn
+   # Grep naar AISummary( in codebase
+   ```
+
+3. **Breaking Changes Scan**
+   ```bash
+   git diff | grep -E "(nullable=False|Column.*NOT NULL|ForeignKey)"
+   # Elke nieuwe NOT NULL kolom → migratie nodig OF code moet default waarde geven
+   ```
+
+4. **Commit Logica Validatie**
+   - Als `models.py` wijzigt → check of `generator.py` of andere gebruikers ook wijzigen
+   - Als `main.py` API wijzigt → check of alle aanroepers ook updated zijn
+   - Als database schema → check of migratie script up-to-date is
+
+5. **Pre-Push Dry Run (lokaal)**
+   ```bash
+   # Test of imports werken met nieuwe models
+   ./venv/bin/python -c "from src.database.models import AISummary; print(AISummary.__table__.columns.keys())"
+
+   # Test of generator nieuwe fields kan gebruiken
+   ./venv/bin/python -c "from src.news.generator import NewsGenerator; print('OK')"
+   ```
+
+6. **Post-Push Verification (server)**
+   ```bash
+   # Wacht 10 seconden op Forgejo runner
+   sleep 10
+
+   # Check of commit landed
+   ssh dtd 'cd ~/apps/ai-news-bot && git log -1 --oneline'
+
+   # Check of imports werken op server
+   ssh dtd 'cd ~/apps/ai-news-bot && ./venv/bin/python -c "from src.database.models import AISummary; print(AISummary.__table__.columns.keys())"'
+   ```
+
+---
+
+### 🚨 Red Flags die Deployment Problemen Signaleren
+
+**Tijdens Development:**
+- "Ik commit eerst X, dan later Y" → FOUT: commit atomisch of niet
+- "Deze file hoef ik niet te committen" → Check 2x of deze file door andere files gebruikt wordt
+- `git status` toont modified files in `src/database/` → 99% kans dat je meer moet committen
+
+**Tijdens Deployment:**
+- Error: `'X' is an invalid keyword argument` → Model definitie mismatch (models.py niet gesynchroniseerd)
+- Error: `NOT NULL constraint failed` → Database schema vs code mismatch (migratie vergeten OF code geeft None)
+- Error: `No module named 'X'` → Dependencies niet geïnstalleerd (requirements.txt outdated)
+
+**Deployment Success Criteria:**
+- ✅ Alle gerelateerde files in één atomic commit
+- ✅ Database migratie script gedraaid (indien schema wijzigt)
+- ✅ Server imports testen zonder errors
+- ✅ Handmatige testrun op server succesvol
+
+---
+
+### 💡 Ontwikkel Best Practices (afgeleid uit deze sessie)
+
+1. **Atomic Commits voor Gerelateerde Wijzigingen**
+   - Models + Gebruikers van die models = 1 commit
+   - Schema wijziging + Migratie script = 1 commit
+   - API change + Alle callers = 1 commit
+
+2. **Database Schema Wijzigingen = Special Case**
+   - ALTIJD migratie script maken (ook voor nullable kolommen)
+   - ALTIJD backward compatibility overwegen
+   - ALTIJD default waarden geven voor nieuwe NOT NULL kolommen
+   - NOOIT oude kolommen verwijderen zonder deprecation periode
+
+3. **"Trust But Verify" voor Automated Deployment**
+   - Forgejo runner is betrouwbaar MAAR check altijd of commit daadwerkelijk landed
+   - Git push ≠ Deployment success → verify via SSH
+   - Automated ≠ Infallible → smoke test na deployment
+
+4. **Mental Model van Deployment Pipeline**
+   ```
+   git push origin main
+       ↓
+   Forgejo detecteert push (binnen 5 sec)
+       ↓
+   Runner draait deploy.yml workflow
+       ↓
+   SSH naar server → git pull → pip install → systemd restart
+       ↓
+   Server heeft nieuwe code (binnen 10-15 sec)
+   ```
+
+5. **Error Messages zijn Diagnostiek Tools**
+   - `'title' is invalid keyword` → Models definitie probleem (check models.py commit)
+   - `NOT NULL constraint failed` → Database vs code mismatch (check nullable settings)
+   - `ModuleNotFoundError` → Dependency probleem (check requirements.txt + pip install)
+
+---
+
+### 🔧 Tooling Verbeteringen (TODO items hierboven)
+
+- Pre-deployment validation script (`scripts/pre-deploy-check.sh`)
+- Post-deployment health check (`scripts/health-check.sh`)
+- Automated smoke tests in Forgejo workflow
+- Git pre-push hook met model sync check
+
+---
+
+Last updated: 2026-01-04
