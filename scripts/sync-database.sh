@@ -29,6 +29,22 @@ notify() {
 
 log "Starting database sync..."
 
+# Throttle: skip als laatste sync minder dan 12 uur geleden was
+LAST_SYNC_FILE="$PROJECT_DIR/data/.last-sync"
+MIN_INTERVAL=$((12 * 60 * 60))  # 12 uur in seconden
+
+if [ -f "$LAST_SYNC_FILE" ]; then
+    LAST_SYNC=$(cat "$LAST_SYNC_FILE")
+    NOW=$(date +%s)
+    ELAPSED=$((NOW - LAST_SYNC))
+
+    if [ $ELAPSED -lt $MIN_INTERVAL ]; then
+        HOURS_AGO=$((ELAPSED / 3600))
+        log "Skipped: laatste sync was $HOURS_AGO uur geleden (minimum: 12 uur)"
+        exit 0
+    fi
+fi
+
 # Backup van huidige database (optioneel)
 if [ -f "$LOCAL_PATH" ]; then
     BACKUP_PATH="${LOCAL_PATH}.backup"
@@ -40,6 +56,8 @@ fi
 if scp "$SERVER:$REMOTE_PATH" "$LOCAL_PATH" >> "$LOG_FILE" 2>&1; then
     log "Database sync successful!"
     notify "AI News Bot" "Database sync voltooid ✓"
+    # Update timestamp voor throttling
+    date +%s > "$LAST_SYNC_FILE"
     exit 0
 else
     log "ERROR: Database sync failed!"
