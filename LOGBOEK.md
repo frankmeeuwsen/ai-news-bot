@@ -1,5 +1,64 @@
 # AI News Bot - Logboek
 
+## 2026-01-14: Database Sync Throttle - Rapid-Fire Preventie (10 min)
+
+**Context:** Script fix om te voorkomen dat database sync binnen 12 uur opnieuw draait, als bescherming tegen onbedoelde rapid-fire syncs.
+
+**Doorgevoerde wijzigingen:**
+
+1. **scripts/sync-database.sh - Throttle Logica**
+   - 12-uur throttle toegevoegd met `.last-sync` timestamp bestand
+   - Controleert bij elke run of laatste sync minder dan 12 uur geleden was
+   - Logt throttle events naar `logs/db-sync.log`
+   - Timestamp bestand: `data/.last-sync` (Unix timestamp)
+
+2. **CLAUDE.md - Documentatie Update**
+   - Sync throttle beschrijving toegevoegd aan Database Sync sectie
+   - Throttle override uitleg: verwijder `.last-sync` bestand
+   - Manual sync procedure gedocumenteerd
+
+**Rationale:**
+
+- Launchd StartOnMount kan tot onbedoelde syncs leiden bij herhaald opstarten
+- 12-uur window voorkomt database corruption door overlappende syncs
+- Throttle file in `data/` directory (samen met database)
+
+**Technische Details:**
+
+Throttle check logic:
+```bash
+if [ -f "$THROTTLE_FILE" ]; then
+    last_sync=$(cat "$THROTTLE_FILE")
+    now=$(date +%s)
+    diff=$((now - last_sync))
+    if [ $diff -lt $THROTTLE_SECONDS ]; then
+        hours_left=$(((THROTTLE_SECONDS - diff) / 3600))
+        log_message "THROTTLE: Last sync was $((diff / 3600))h ago. Wait ${hours_left}h more."
+        exit 0
+    fi
+fi
+```
+
+**Test:**
+- Dry-run uitgevoerd: throttle logica werkt correct
+- `.last-sync` bestand wordt correct aangemaakt en gerespecteerd
+- Logging naar `logs/db-sync.log` werkt
+
+**Git Status:**
+
+- Branch: `main`
+- Commits:
+  - `066455b` - feat: add 12-hour throttle to database sync script
+  - (uncommitted) CLAUDE.md documentation update
+- Pushed naar: origin en github (script commit)
+
+**Volgende Stap:**
+
+- Monitoring van throttle events in `logs/db-sync.log`
+- Eventueel throttle window aanpassen op basis van gebruik
+
+---
+
 ## 2026-01-04: Obsidian Integratie - Newsletter met Deep Links
 
 **Context:** Implementatie van Obsidian deep links in nieuwsbrief voor directe opslag van artikelen in Obsidian vault. Newsletter workflow aangepast om database-first te werken met structured summaries.

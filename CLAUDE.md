@@ -302,11 +302,13 @@ Voor problemen met de service, zie [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
    - Maakt automatisch backup (`newsbot.db.backup`) voor rollback
    - macOS notificaties bij succes/falen
    - Logging naar `logs/db-sync.log`
+   - **12-uur throttle:** Skipt sync als laatste sync < 12 uur geleden (voorkomt rapid-fire syncs door StartOnMount)
+   - Timestamp opgeslagen in `data/.last-sync`
 
 2. **Launchd Agent** (`~/Library/LaunchAgents/nl.frankmeeuwsen.ai-news-bot.sync.plist`)
    - Label: `nl.frankmeeuwsen.ai-news-bot.sync`
    - Schedule: Dagelijks 08:00 uur
-   - StartOnMount: Catch-up bij gemiste runs (laptop uit)
+   - StartOnMount: Catch-up bij gemiste runs (laptop uit) - throttled door script
    - Logs: `logs/launchd-sync-stdout.log` en `logs/launchd-sync-stderr.log`
 
 3. **Documentatie** (`scripts/README-database-sync.md`)
