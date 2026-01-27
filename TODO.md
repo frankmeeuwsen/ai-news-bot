@@ -13,18 +13,17 @@
 
 ### 🚀 Deployment & Server Operations
 
-- [ ] **Pre-Deployment Checklist & Validation**
-  - Maak automated pre-deployment validation script (`scripts/pre-deploy-check.sh`)
-  - Checks voordat je naar server pusht:
-    - Git status: check uncommitted changes in kritieke files
-    - Models sync: vergelijk lokale `src/database/models.py` met laatste commit
-    - Database migrations: check of migratie scripts nodig zijn
-    - Dependency changes: diff `requirements.txt` sinds laatste deploy
-    - Config changes: check `.env` / `config.yaml` wijzigingen
-    - Breaking changes: grep naar `nullable=False` toevoegingen in models
-  - Output: Go/No-Go beslissing + lijst van actiepunten
-  - Integreer in git pre-push hook (optioneel, voor veiligheid)
-  - Documenteer deployment checklist in `DEPLOYMENT.md`
+- [x] **Pre-Deployment Checklist & Validation** ✅ (2026-01-27)
+  - ✅ Script: `scripts/pre-deploy-check.sh` met 7 checks
+  - ✅ Check 1: Git status audit (uncommitted critical files)
+  - ✅ Check 2: Database model changes (atomic commits)
+  - ✅ Check 3: Breaking changes scan (nullable=False, NOT NULL, ForeignKey)
+  - ✅ Check 4: Dependency changes (requirements.txt diff)
+  - ✅ Check 5: Config changes (config.yaml, sources.yaml)
+  - ✅ Check 6: Import tests (pre-push dry run)
+  - ✅ Check 7: Atomic commit validation
+  - ✅ Documentatie: `scripts/README-pre-deploy.md`
+  - ✅ Exit codes: 0=GO, 1=NO-GO met actionable feedback
 
 - [ ] **Server Health Check Dashboard**
   - Script dat server status checkt na deployment:
