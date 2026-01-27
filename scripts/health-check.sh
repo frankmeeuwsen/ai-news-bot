@@ -185,7 +185,12 @@ if [ -f "data/newsbot.db" ]; then
         # Try to query database
         DB_STATS=$(./venv/bin/python -c "
 import sys
+import logging
 sys.path.insert(0, '.')
+
+# Suppress logging output
+logging.basicConfig(level=logging.CRITICAL)
+
 try:
     from src.database import init_db, get_session
     from src.database.models import NewsItem, NewsletterRun, RSSHealth
