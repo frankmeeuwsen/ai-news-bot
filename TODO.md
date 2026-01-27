@@ -25,17 +25,18 @@
   - ✅ Documentatie: `scripts/README-pre-deploy.md`
   - ✅ Exit codes: 0=GO, 1=NO-GO met actionable feedback
 
-- [ ] **Server Health Check Dashboard**
-  - Script dat server status checkt na deployment:
-    - Git commit hash (verwacht vs actueel)
-    - Database schema versie vs model definitie
-    - Python dependencies (requirements.txt vs installed)
-    - Service status (systemd ai-news-bot.service)
-    - Laatste run status (success/failure)
-    - Database record counts (sanity check)
-  - Output: Quick diagnostic overzicht
-  - Run via: `ssh dtd 'cd ~/apps/ai-news-bot && ./scripts/health-check.sh'`
-  - Gebruik bij troubleshooting deployment issues
+- [x] **Server Health Check Dashboard** ✅ (2026-01-27)
+  - ✅ Script: `scripts/health-check.sh` met 7 comprehensive checks
+  - ✅ Check 1: Git repository status (commit hash, sync, working tree)
+  - ✅ Check 2: Python environment (venv, version, packages, dependencies)
+  - ✅ Check 3: Database status (existence, size, accessibility, record counts)
+  - ✅ Check 4: Configuration files (config.yaml, sources.yaml, .env, env vars)
+  - ✅ Check 5: Systemd service status (timer, next run, last result)
+  - ✅ Check 6: Log files (directory, recent logs, error detection)
+  - ✅ Check 7: Disk space (usage %, available space)
+  - ✅ Documentatie: `scripts/README-health-check.md`
+  - ✅ Exit codes: 0=HEALTHY, 1=UNHEALTHY, 2=WARNING
+  - ✅ Color-coded output voor quick visual diagnostics
 
 - [ ] **Deployment Smoke Tests**
   - Automated test suite die na deployment draait op server
