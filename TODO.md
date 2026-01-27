@@ -4,21 +4,12 @@
 
 ### 🔧 Obsidian Integration Fixes
 
-- [ ] **Escape Ongeldige Karakters in Obsidian Bestandsnamen**
-  - Probleem: Titels met `:`, `/`, `\` crashen Obsidian file creation
-  - Error: "File name cannot contain any of the following characters: \/:"
-  - Fix locatie: `src/obsidian/uri_builder.py` - `build_obsidian_uri()` functie
-  - Sanitize titel voordat deze als bestandsnaam gebruikt wordt
-  - Replace strategie:
-    - `:` → ` -` (dubbele punt naar spatie-dash)
-    - `/` → `-` (slash naar dash)
-    - `\` → `-` (backslash naar dash)
-    - `*` → `` (asterisk verwijderen)
-    - `?` → `` (vraagteken verwijderen)
-    - `"` → `'` (dubbele quote naar enkele)
-    - `<>|` → verwijderen
-  - Test met edge cases: "AI: De nieuwe revolutie", "GPT-4/Claude vergelijking"
-  - Frontmatter `onderwerp` field mag WEL deze karakters bevatten (is geen bestandsnaam)
+- [x] **Escape Ongeldige Karakters in Obsidian Bestandsnamen** ✅ (2026-01-27)
+  - ✅ Toegevoegd: `sanitize_filename()` functie in `src/obsidian/uri_builder.py`
+  - ✅ Geïmplementeerd: Replace strategie voor alle Obsidian ongeldige karakters
+  - ✅ Unit tests: `test_filename_sanitization.py` (24 test cases, all passing)
+  - ✅ Integration test: `test_sanitization_integration.py` (4 edge cases, all passing)
+  - ✅ Verified: Frontmatter `onderwerp` field kan originele titel behouden (niet gesanitizeerd)
 
 ### 🚀 Deployment & Server Operations
 
