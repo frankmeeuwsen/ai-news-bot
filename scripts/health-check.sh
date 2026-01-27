@@ -185,11 +185,13 @@ if [ -f "data/newsbot.db" ]; then
         # Try to query database
         DB_STATS=$(./venv/bin/python -c "
 import sys
-import logging
-sys.path.insert(0, '.')
+import os
 
-# Suppress logging output
-logging.basicConfig(level=logging.CRITICAL)
+# Redirect stdout to suppress logging output
+old_stdout = sys.stdout
+sys.stdout = open(os.devnull, 'w')
+
+sys.path.insert(0, '.')
 
 try:
     from src.database import init_db, get_session
@@ -203,11 +205,14 @@ try:
     run_count = session.query(NewsletterRun).count()
     rss_count = session.query(RSSHealth).count()
 
+    # Restore stdout for our output
+    sys.stdout = old_stdout
     print(f'{news_count}|{run_count}|{rss_count}')
     session.close()
 except Exception as e:
+    sys.stdout = old_stdout
     print(f'ERROR|{e}')
-" 2>&1)
+" 2>/dev/null)
 
         if [[ "$DB_STATS" == ERROR* ]]; then
             print_error "Database query failed"
