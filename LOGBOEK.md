@@ -1,5 +1,111 @@
 # AI News Bot - Logboek
 
+## 2026-01-27: Developer Tooling - Preview Mode, Health Check & Pre-Deploy Validation (95 min)
+
+**Context:** Implementatie van developer tooling voor veiligere deployments en snellere ontwikkelcyclus.
+
+**Doorgevoerde wijzigingen:**
+
+1. **Obsidian Filename Sanitization**
+   - `src/obsidian/uri_builder.py`: Nieuwe `sanitize_filename()` functie
+   - Vervangt illegale karakters: `/\:*?"<>|` → underscores
+   - Handhaaft maximale lengte (255 karakters)
+   - Voorkomt Obsidian file creation errors
+
+2. **Pre-Deployment Validation Script**
+   - `scripts/pre-deploy-check.sh`: 7 geautomatiseerde checks
+   - Git status audit (uncommitted files, untracked files)
+   - Database model sync check (models.py vs gebruikers)
+   - Breaking changes scan (nullable=False, NOT NULL)
+   - Import validation (Python syntax check)
+   - Dependencies check (requirements.txt sync)
+   - Exit code support voor CI/CD integration
+   - Kleurgecodeerde output (groen/geel/rood)
+
+3. **Server Health Check Dashboard**
+   - `scripts/health-check.py`: 7 diagnostics voor production monitoring
+   - System checks: Database, RSS feeds, recent runs, AI summaries
+   - Cost tracking: Last 7 days, provider/model breakdown
+   - RSS health: Failure rates, disabled feeds
+   - Performance: Average tokens per run
+   - Exit codes: 0=healthy, 1=warnings, 2=critical
+   - Quiet mode voor scripting (`--quiet` flag)
+
+4. **Dry-Run/Preview Mode**
+   - `main.py`: Nieuwe `--preview` flag toegevoegd
+   - Stage 1 + Stage 2 processing zonder notificaties
+   - Saves output naar `preview_newsletter.html`
+   - Browser auto-open voor visual inspection
+   - Volledige database tracking (run ID, costs, summaries)
+   - Gebruik: `python main.py --preview` voor snelle prompt testing
+
+**Belangrijke Beslissingen:**
+
+- Pre-deploy check voorkomt repeat van deployment chaos (zie 2026-01-04 retrospective)
+- Health check gebruikt database queries voor accuratere metrics dan log parsing
+- Preview mode schrijft WEL naar database (consistency met production)
+- Sanitization alleen voor filenames, niet voor URL encoding (UX priority)
+
+**Test Resultaten:**
+
+- Pre-deploy check: 7/7 checks passed lokaal
+- Health check: Successvol op lokale database (17 runs, 279 summaries)
+- Preview mode: Newsletter gegenereerd in 2:13 min (15 items)
+- Obsidian links: Correcte filename sanitization (test passed)
+
+**Technische Details:**
+
+Pre-deploy check scans:
+```bash
+# Git status
+git status --short
+
+# Model sync
+git diff src/database/models.py | grep "class \|Column"
+
+# Breaking changes
+git diff | grep -E "nullable=False|NOT NULL|ForeignKey"
+
+# Import test
+python -c "from src.database.models import AISummary"
+```
+
+Health check metrics:
+```
+Database: OK (279 summaries across 17 runs)
+RSS Feeds: 2 disabled, 51 total
+Recent Activity: Last run 1 day ago
+Cost (7d): $0.58 (claude-3.5-sonnet-20241022)
+```
+
+**Documentatie:**
+
+- `scripts/README.md`: Nieuwe sectie voor pre-deploy en health check
+- Usage examples en exit code documentatie
+- Integration met CI/CD workflows
+
+**Git Status:**
+
+- Branch: `main`
+- Commits:
+  - `af33e58` - feat: add dry-run/preview mode for newsletter testing
+  - `2588fea` - fix: suppress stdout logging in database health check
+  - `8adb568` - fix: suppress logging in health check database queries
+  - `42b4533` - fix: correct package import name and database init in health check
+  - `b9b7d8f` - feat: add server health check dashboard
+- Uncommitted: LOGBOEK.md (deze sessie)
+
+**Volgende Stappen:**
+
+- Integreren pre-deploy check in Forgejo Actions workflow
+- Health check in systemd timer voor daily monitoring
+- Alerting bij health check failures (email/webhook)
+- Preview mode gebruiken voor prompt iteratie cycles
+
+**Totaal: 95 min**
+
+---
+
 ## 2026-01-14: Database Sync Throttle - Rapid-Fire Preventie (10 min)
 
 **Context:** Script fix om te voorkomen dat database sync binnen 12 uur opnieuw draait, als bescherming tegen onbedoelde rapid-fire syncs.
