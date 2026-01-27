@@ -128,7 +128,7 @@ if [ -d "venv" ]; then
     # Check if critical packages are installed
     CRITICAL_PACKAGES=(
         "openai"
-        "pyyaml"
+        "yaml"
         "feedparser"
         "sqlalchemy"
     )
@@ -187,8 +187,11 @@ if [ -f "data/newsbot.db" ]; then
 import sys
 sys.path.insert(0, '.')
 try:
-    from src.database import get_session
+    from src.database import init_db, get_session
     from src.database.models import NewsItem, NewsletterRun, RSSHealth
+
+    # Initialize database (idempotent operation)
+    init_db()
 
     session = get_session()
     news_count = session.query(NewsItem).count()
