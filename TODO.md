@@ -77,13 +77,16 @@
 
 ### 🧪 Testing & Development
 
-- [ ] **Testmodus voor Prompts**
-  - Dry-run mode: genereer nieuwsbrief zonder te versturen
-  - Preview in terminal of browser
-  - Output naar bestand (HTML/Markdown)
-  - Command-line flag: `--dry-run` of `--preview`
-  - Handig voor prompt iteratie en testing
-  - Optie om specifieke taal te testen zonder andere te versturen
+- [x] **Testmodus voor Prompts** ✅ (2026-01-27)
+  - ✅ Command-line flags: `--dry-run`, `--preview`
+  - ✅ Genereert nieuwsbrief zonder te versturen
+  - ✅ Preview in browser (auto-open)
+  - ✅ Output naar HTML bestanden in `./preview/`
+  - ✅ Specifieke taal testen: `--language nl`
+  - ✅ Custom output directory: `--output-dir DIR`
+  - ✅ No-browser mode: `--no-browser`
+  - ✅ Styled preview met gele banner (DRY-RUN indicator)
+  - ✅ Documentatie: `README-dry-run.md`
 
 - [ ] **Raycast Integratie voor TODO Beheer**
   - Maak Raycast script command voor snelle TODO toevoegingen
