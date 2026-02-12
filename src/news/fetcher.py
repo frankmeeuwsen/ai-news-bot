@@ -362,6 +362,37 @@ class NewsFetcher:
         except Exception as e:
             logger.error(f"Error updating RSS health: {e}", exc_info=True)
 
+    def _is_feed_active(self, source_name: str) -> bool:
+        """
+        Check of een feed actief is in de RSSHealth tabel.
+
+        Returns True als:
+        - Geen health record bestaat (nieuwe feed)
+        - Record bestaat met is_active=True
+
+        Returns False als:
+        - Record bestaat met is_active=False (auto-disabled na failures)
+        """
+        try:
+            with session_scope() as session:
+                health = session.query(RSSHealth).filter_by(
+                    source_name=source_name
+                ).first()
+
+                if health and not health.is_active:
+                    logger.info(
+                        f"Skipping disabled feed '{source_name}' "
+                        f"({health.consecutive_fails} consecutive failures)"
+                    )
+                    return False
+
+                return True
+
+        except Exception as e:
+            # Bij database errors: feed gewoon proberen (fail-safe)
+            logger.debug(f"Could not check feed health for {source_name}: {e}")
+            return True
+
     def fetch_recent_news(
         self,
         language: str = "en",
@@ -399,6 +430,10 @@ class NewsFetcher:
 
         # Fetch international news
         for source_name, feed_url in self.rss_feeds.items():
+            # Skip feeds die auto-disabled zijn in de database
+            if not self._is_feed_active(source_name):
+                continue
+
             # Check cache eerst
             cached_items = self._get_cached_items(source_name, language, 'international')
 
@@ -463,6 +498,10 @@ class NewsFetcher:
             logger.warning(f"No domestic feeds configured for language: {language}, using international only")
         else:
             for source_name, feed_url in feeds.items():
+                # Skip feeds die auto-disabled zijn in de database
+                if not self._is_feed_active(source_name):
+                    continue
+
                 # Check cache
                 cached_items = self._get_cached_items(source_name, language, 'domestic')
 
