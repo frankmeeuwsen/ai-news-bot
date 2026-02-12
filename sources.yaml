@@ -74,6 +74,16 @@ international:
 # Blogs on AI in Business and Industry
   AI Trends: "https://www.aitrends.com/feed/"
 
+# Social Feeds (Bluesky & Mastodon)
+  Bluesky ML Curator: "https://bsky.app/profile/did:plc:zwzdlsvtvlxnpuacwhmqmd22/rss"
+  Bluesky Yann LeCun: "https://bsky.app/profile/did:plc:c2mjfv2a7judclufinscuyid/rss"
+  Bluesky Emily Bender: "https://bsky.app/profile/did:plc:aeug3w4mdhnc2wv73hmrh36v/rss"
+  Bluesky Margaret Mitchell: "https://bsky.app/profile/did:plc:3tmaleaxipegsectvamyrkyi/rss"
+  Bluesky Paper Skygest: "https://bsky.app/profile/did:plc:uaadt6f5bbda6cycbmatcm3z/rss"
+  "Mastodon #AI": "https://mastodon.social/tags/ai.rss"
+  "Mastodon #MachineLearning": "https://mastodon.social/tags/machinelearning.rss"
+  "Mastodon #LLM": "https://mastodon.social/tags/llm.rss"
+
 # Language-specific sources
 languages:
   # Chinese (zh)
