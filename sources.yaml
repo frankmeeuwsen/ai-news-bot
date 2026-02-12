@@ -1,6 +1,7 @@
 # RSS Feed Sources for AI News
 # This file contains all news sources organized by language
 # Last cleaned: 2026-02-12 (removed 18 broken/defunct feeds)
+# Last expanded: 2026-02-12 (added 14 feeds: MKB, PKM, creativiteit, deep tech, kritisch)
 
 # International sources (English)
 international:
@@ -45,10 +46,30 @@ international:
   Creative Bloq: "https://www.creativebloq.com/feeds/all"
   PetaPixel: "https://petapixel.com/feed/"
   The Decoder: "https://the-decoder.com/feed/"
+  Replicate Blog: "https://replicate.com/blog/rss"
 
 # Blogs about AI Ethics, Policy, and Society
   AI Ethics Lab: "https://aiethicslab.com/feed/"
   AI Policy Exchange: "https://aipolicyexchange.org/feed/"
+  AI Snake Oil: "https://aisnakeoil.substack.com/feed"
+  Marcus on AI (Gary Marcus): "https://garymarcus.substack.com/feed"
+  Tech Policy Press: "https://www.techpolicy.press/feed/"
+  AI Ethics Brief (Montreal): "https://brief.montrealethics.ai/feed"
+
+# AI voor MKB & Praktische Toepassingen
+  Ben's Bites: "https://www.bensbites.com/feed"
+  n8n Blog: "https://blog.n8n.io/rss/"
+
+# AI & Personal Knowledge Management
+  Ness Labs: "https://nesslabs.com/feed"
+
+# Deep Tech & ML Engineering
+  Ahead of AI (Sebastian Raschka): "https://magazine.sebastianraschka.com/feed"
+  Eugene Yan: "https://eugeneyan.com/rss/"
+  Chip Huyen: "https://huyenchip.com/feed"
+  EleutherAI Blog: "https://blog.eleuther.ai/index.xml"
+  The Gradient: "https://thegradient.pub/rss/"
+  Jay Alammar: "https://jalammar.github.io/feed.xml"
 
 # Blogs on AI in Business and Industry
   AI Trends: "https://www.aitrends.com/feed/"
