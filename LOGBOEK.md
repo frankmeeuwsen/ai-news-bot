@@ -1,5 +1,113 @@
 # AI News Bot - Logboek
 
+## 2026-02-12: Feed Expansion - Social Media & Deep Tech Bronnen (30 min)
+
+**Context:** Grote uitbreiding van RSS bronnen voor bredere AI-dekking: MKB tools, PKM, creativiteit, deep tech research en kritische stemmen. Twitter/X API te duur ($200/mo), daarom migratie naar Bluesky en Mastodon social feeds.
+
+**Doorgevoerde wijzigingen:**
+
+1. **Nieuwe RSS Feeds (14 feeds toegevoegd)**
+   - **MKB/Implementatie:** Ben's Bites (dagelijkse AI roundup), n8n Blog (automation workflows)
+   - **PKM/Productiviteit:** Ness Labs (digital tools, productivity)
+   - **Creativiteit:** Replicate Blog (creative AI tools, image/video gen)
+   - **Deep Tech/Research:**
+     - Sebastian Raschka (ML research, LLM papers)
+     - Eugene Yan (applied ML, production systems)
+     - Chip Huyen (ML systems design)
+     - EleutherAI (open-source LLMs, research)
+     - The Gradient (AI research magazine)
+     - Jay Alammar (visual ML explanations)
+   - **Kritisch/Ethiek:**
+     - AI Snake Oil (Narayanan & Kapoor, kritische AI analyse)
+     - Gary Marcus (AGI skepticus)
+     - Tech Policy Press (AI policy, regulering)
+     - Montreal AI Ethics Institute (AI ethics research)
+
+2. **Social Media Feeds (8 feeds toegevoegd)**
+   - **Bluesky (5 feeds):**
+     - ML Curator (@mlcurator.bsky.social) - gecureerde ML nieuws
+     - Yann LeCun (@ylecun.bsky.social) - Meta AI Chief
+     - Emily Bender (@emilymbender.bsky.social) - computational linguistics
+     - Margaret Mitchell (@mmitchell.bsky.social) - ethical AI
+     - Paper Skygest (@paperskygest.bsky.social) - arXiv papers
+   - **Mastodon (3 hashtag feeds):**
+     - #AI op mastodon.social
+     - #MachineLearning op mastodon.social
+     - #LLM op mastodon.social
+
+3. **Technische Implementatie**
+   - Bluesky: DID-based profile URLs (stabiel, geen handle-afhankelijkheid)
+   - Mastodon: Hashtag feeds via standaard RSS 2.0 URLs
+   - Geen code wijzigingen nodig - bestaande `NewsFetcher` parsed social feeds direct
+   - Categorisatie: MKB, PKM, Creativiteit, Deep Tech, Kritisch (voor filtering)
+
+**Belangrijke Beslissingen:**
+
+- **Twitter/X afgewezen:** $200/mo API kosten te hoog, scraping fragiel, Nitter dood
+- **Bluesky gekozen:** Gratis API, betrouwbaar, veel AI researchers migreren hiernaartoe
+- **Mastodon hashtags:** Breed maar mogelijk lawaaierig, evalueren na 1-2 weken
+- **DID URLs voor Bluesky:** Stabiel bij handle changes (bijv. `did:plc:ragtjsm2j2vknwkz3zp4oxrd`)
+- **Geen filtering code:** Laat Stage 1 selectie prompt de kwaliteit bepalen
+
+**Feed Overzicht:**
+
+```
+Totaal international feeds: 33 → 55 (+67%)
+  - RSS feeds: 47
+  - Social feeds: 8 (5 Bluesky + 3 Mastodon)
+```
+
+**Rationale per Categorie:**
+
+- **MKB:** Ben's Bites heeft grote community, n8n is praktisch (workflows)
+- **PKM:** Ness Labs past bij Frank's PKM focus (Obsidian, second brain)
+- **Creativiteit:** Replicate voor visual AI tools (image gen, video, etc.)
+- **Deep Tech:** Research papers en production ML (Raschka, Yan, Huyen = authorities)
+- **Kritisch:** Balans tegen hype - Gary Marcus, AI Snake Oil, ethics instituten
+
+**Social Feed URLs:**
+
+Bluesky:
+```
+https://bsky.app/profile/{did}/rss
+```
+
+Mastodon:
+```
+https://mastodon.social/tags/{hashtag}.rss
+```
+
+**Test Strategie:**
+
+1. Eerste productie run monitoren (morgen 07:00):
+   - Check RSS parse errors in logs
+   - Controleer database `rss_health` tabel op failures
+   - Review geselecteerde items: komen nieuwe feeds door Stage 1?
+
+2. Na 1-2 weken evalueren:
+   - Mastodon hashtags: noise level (te veel irrelevante posts?)
+   - Bluesky feeds: kwaliteit vs overlap met bestaande bronnen
+   - Deep tech feeds: te academisch of goed voor doelgroep?
+   - Social feeds: duplicate detection werkt goed genoeg?
+
+**Git Status:**
+
+- Branch: `main`
+- Laatste commit: `aa73e06` - fix: clean up 18 broken RSS feeds and add is_active check to fetcher
+- Working tree: Clean (sources.yaml commit bevatte feed expansion)
+- Uncommitted: LOGBOEK.md (deze sessie)
+
+**Volgende Stappen:**
+
+- Monitoring eerste run met nieuwe feeds (parse errors?)
+- Evaluatie na 1 week: noise level Mastodon hashtags
+- Eventueel meer Bluesky accounts toevoegen op basis van kwaliteit
+- Overwegen: Bluesky lists (gecureerde AI lists) als alternatief voor individuele accounts
+
+**Totaal: 30 min**
+
+---
+
 ## 2026-01-27: Developer Tooling - Preview Mode, Health Check & Pre-Deploy Validation (95 min)
 
 **Context:** Implementatie van developer tooling voor veiligere deployments en snellere ontwikkelcyclus.
