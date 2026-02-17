@@ -2,9 +2,9 @@
 
 ## Project Overzicht
 
-Een automatische nieuwsbot die RSS feeds verzamelt, cureert met AI (via OpenRouter), en verstuurt via verschillende notificatiekanalen. Ondersteunt meerdere talen en heeft een twee-staps proces (selectie + samenvatting).
+Een automatische nieuwsbot die RSS feeds verzamelt, cureert met AI (Anthropic Claude via directe API), en verstuurt via Resend email. Ondersteunt meerdere talen en heeft een twee-staps proces (selectie + samenvatting).
 
-**Stack:** Python, OpenRouter API, RSS feeds, YAML configuratie, Markdown templates
+**Stack:** Python, Anthropic Claude API, RSS feeds, YAML configuratie, Resend email
 
 **Doel:** Geautomatiseerde nieuwscuratie voor verschillende doelgroepen, met focus op AI/tech nieuws.
 
@@ -83,10 +83,9 @@ Een automatische nieuwsbot die RSS feeds verzamelt, cureert met AI (via OpenRout
 
 **Voor volgende sessies:**
 
-1. **Testmodus prioriteren:** Belangrijk om prompts te kunnen itereren zonder echt te versturen
-2. **Kosten monitoring:** OpenRouter API geeft usage data terug, kan gebruikt worden voor tracking
-3. **Prompt verbetering:** Focus op Axios-stijl (bulletpoints, "why it matters", korte paragrafen)
-4. **RSS monitoring:** Automatisch detecteren van broken feeds voorkomt stille failures
+1. **Prompt verbetering:** Focus op Axios-stijl (bulletpoints, "why it matters", korte paragrafen)
+2. **RSS monitoring:** Automatisch detecteren van broken feeds voorkomt stille failures
+3. **Kosten monitoring:** Anthropic API usage tracking integreren
 
 **⚠️ KRITIEKE WERKWIJZE - Anti-Duplicatie Protocol:**
 
@@ -129,7 +128,7 @@ wordt gedaan of TODO's dubbel worden toegevoegd.
 **Code Organisatie:**
 
 - `/src/news/` - Core nieuwslogica (fetcher, generator)
-- `/src/llm_providers/` - LLM integraties (OpenRouter)
+- `/src/llm_providers/` - LLM integraties (Claude/Anthropic actief, OpenRouter legacy)
 - `/src/config.py` - Configuratie management
 
 ---
@@ -250,10 +249,12 @@ wordt gedaan of TODO's dubbel worden toegevoegd.
 
 **Configuratie:**
 
-- Environment: `~/.env-newsbot` (of `.env` in project dir)
-- LLM Provider: OpenRouter (claude/sonnet-4.5)
-- Notificaties: Gmail SMTP
+- Environment: `.env` in project dir (`/home/frank/apps/ai-news-bot/.env`)
+- LLM Provider: Anthropic Claude (claude-sonnet-4-5-20250929)
+- Notificaties: Resend (email)
 - Database: SQLite (`data/newsbot.db`)
+
+**LET OP:** Er mag maar EEN .env bestand zijn. Het project `.env` is de single source of truth. De systemd service `EnvironmentFile` wijst naar dit bestand. Gebruik NOOIT een apart `~/.env-newsbot` bestand - dit veroorzaakte een configuratie-drift bug in feb 2026 (zie LOGBOEK.md).
 
 **Handige Commando's:**
 
@@ -466,12 +467,19 @@ eafb21b - fix: provide summary_text for backward compat       [generator.py - NU
 - Error: `'X' is an invalid keyword argument` → Model definitie mismatch (models.py niet gesynchroniseerd)
 - Error: `NOT NULL constraint failed` → Database schema vs code mismatch (migratie vergeten OF code geeft None)
 - Error: `No module named 'X'` → Dependencies niet geïnstalleerd (requirements.txt outdated)
+- Error: `401 - User not found` → API key ongeldig OF verkeerde provider geladen (check welk .env bestand actief is)
+
+**Tijdens Configuratie Wijzigingen:**
+- Provider/notifier wijzigen in `.env` → check of server hetzelfde `.env` gebruikt (systemd EnvironmentFile)
+- Nieuwe env variabele toevoegen → check of die ook op server beschikbaar is
+- `load_dotenv()` overschrijft GEEN bestaande env vars → systemd EnvironmentFile wint altijd
 
 **Deployment Success Criteria:**
-- ✅ Alle gerelateerde files in één atomic commit
+- ✅ Alle gerelateerde files in een atomic commit
 - ✅ Database migratie script gedraaid (indien schema wijzigt)
 - ✅ Server imports testen zonder errors
 - ✅ Handmatige testrun op server succesvol
+- ✅ Server `.env` en lokaal `.env` zijn consistent (geen drift)
 
 ---
 
@@ -510,16 +518,25 @@ eafb21b - fix: provide summary_text for backward compat       [generator.py - NU
    - `'title' is invalid keyword` → Models definitie probleem (check models.py commit)
    - `NOT NULL constraint failed` → Database vs code mismatch (check nullable settings)
    - `ModuleNotFoundError` → Dependency probleem (check requirements.txt + pip install)
+   - `401 User not found` → API key probleem (check welk env bestand geladen wordt)
+
+6. **Configuratie-Drift Preventie (les uit feb 2026)**
+   - NOOIT meerdere .env bestanden op de server hebben
+   - Bij provider/notifier wijzigingen: ALTIJD ook health-check.sh required vars updaten
+   - Bij .env wijzigingen lokaal: ALTIJD checken of server `.env` ook klopt
+   - `load_dotenv()` overschrijft GEEN systemd EnvironmentFile vars - wees je hiervan bewust
+   - Periodiek: `ssh dtd 'grep LLM_PROVIDER ~/apps/ai-news-bot/.env'` om drift te detecteren
 
 ---
 
-### 🔧 Tooling Verbeteringen (TODO items hierboven)
+### 🔧 Tooling Verbeteringen
 
-- Pre-deployment validation script (`scripts/pre-deploy-check.sh`)
-- Post-deployment health check (`scripts/health-check.sh`)
+- Pre-deployment validation script (`scripts/pre-deploy-check.sh`) ✅
+- Post-deployment health check (`scripts/health-check.sh`) ✅
+- Env-consistentie check in health-check.sh (vergelijkt server config met verwachte provider) ✅
 - Automated smoke tests in Forgejo workflow
 - Git pre-push hook met model sync check
 
 ---
 
-Last updated: 2026-01-04
+Last updated: 2026-02-17

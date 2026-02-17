@@ -258,30 +258,27 @@ for entry in "${CONFIG_FILES[@]}"; do
     if [ -f "$file" ]; then
         print_ok "$desc exists ($file)"
     else
-        if [ "$file" = ".env" ]; then
-            # .env might be at ~/.env-newsbot on server
-            if [ -f "$HOME/.env-newsbot" ]; then
-                print_ok "$desc exists (~/.env-newsbot)"
-            else
-                print_warn "$desc not found ($file or ~/.env-newsbot)"
-            fi
-        else
-            print_error "$desc not found ($file)"
-        fi
+        print_error "$desc not found ($file)"
     fi
 done
 
 # Check for required environment variables
 if [ -f ".env" ]; then
     source .env
-elif [ -f "$HOME/.env-newsbot" ]; then
-    source "$HOME/.env-newsbot"
+else
+    print_error ".env not found - cannot check environment variables"
+fi
+
+# Check for stale .env-newsbot (configuration drift risk)
+if [ -f "$HOME/.env-newsbot" ]; then
+    print_warn "Deprecated ~/.env-newsbot still exists - risk of configuration drift"
+    print_info "Rename to ~/.env-newsbot.old or delete it"
 fi
 
 REQUIRED_VARS=(
-    "OPENROUTER_API_KEY"
-    "GMAIL_ADDRESS"
-    "GMAIL_APP_PASSWORD"
+    "ANTHROPIC_API_KEY"
+    "RESEND_API_KEY"
+    "EMAIL_TO"
 )
 
 ENV_VARS_OK=0
@@ -295,6 +292,34 @@ if [ $ENV_VARS_OK -eq ${#REQUIRED_VARS[@]} ]; then
     print_ok "All required environment variables set"
 else
     print_warn "$ENV_VARS_OK/${#REQUIRED_VARS[@]} required environment variables set"
+fi
+
+# ============================================================================
+# CHECK 4b: Environment Consistency (configuration drift detection)
+# ============================================================================
+print_section "Environment Consistency"
+
+if [ -f ".env" ]; then
+    ENV_PROVIDER=$(grep "^LLM_PROVIDER=" .env 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
+    CONFIG_PROVIDER=$(grep "^  provider:" config.yaml 2>/dev/null | head -1 | awk '{print $2}' | tr -d '[:space:]')
+
+    if [ -n "$ENV_PROVIDER" ] && [ -n "$CONFIG_PROVIDER" ] && [ "$ENV_PROVIDER" != "$CONFIG_PROVIDER" ]; then
+        print_warn "LLM_PROVIDER mismatch: .env=$ENV_PROVIDER, config.yaml=$CONFIG_PROVIDER"
+        print_info ".env takes precedence over config.yaml"
+    elif [ -n "$ENV_PROVIDER" ]; then
+        print_ok "LLM Provider: $ENV_PROVIDER"
+    fi
+
+    # Check systemd EnvironmentFile points to project .env
+    if command -v systemctl &> /dev/null; then
+        SYSTEMD_ENV=$(grep "EnvironmentFile=" /etc/systemd/system/ai-news-bot.service 2>/dev/null | cut -d= -f2)
+        PROJECT_ENV="$(pwd)/.env"
+        if [ -n "$SYSTEMD_ENV" ] && [ "$SYSTEMD_ENV" != "$PROJECT_ENV" ]; then
+            print_warn "Systemd EnvironmentFile ($SYSTEMD_ENV) differs from project .env ($PROJECT_ENV)"
+        elif [ -n "$SYSTEMD_ENV" ]; then
+            print_ok "Systemd EnvironmentFile points to project .env"
+        fi
+    fi
 fi
 
 # ============================================================================

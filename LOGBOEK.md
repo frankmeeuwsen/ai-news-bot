@@ -1,5 +1,59 @@
 # AI News Bot - Logboek
 
+## 2026-02-17: Server Failure - Dubbele .env Bestanden & Verouderde Config
+
+**Context:** Nieuwsbot faalde op 17 februari met `401 - User not found` van OpenRouter. Er was niets gewijzigd aan code of server. Laatste succesvolle run: 16 februari 06:00 UTC.
+
+**Root Cause Analyse:**
+
+Het probleem bleek een **configuratie-divergentie** die maanden onopgemerkt bleef:
+
+| Bestand | Locatie | LLM_PROVIDER | Email | Laatst gewijzigd |
+|---------|---------|-------------|-------|------------------|
+| `.env-newsbot` | `~/.env-newsbot` | `openrouter` | Gmail | 4 jan |
+| `.env` | `~/apps/ai-news-bot/.env` | `claude` | Resend | 25 jan |
+
+**Hoe dit kon gebeuren:**
+
+1. Bij de oorspronkelijke server setup (dec 2025) werd `.env-newsbot` aangemaakt als systemd `EnvironmentFile`
+2. Later is de code gemigreerd van OpenRouter naar Anthropic Claude direct, en van Gmail naar Resend
+3. Die wijzigingen zijn alleen in het project `.env` bestand gedaan, NIET in `~/.env-newsbot`
+4. Systemd laadt `.env-newsbot` VOOR Python start. Python's `load_dotenv()` overschrijft geen bestaande variabelen
+5. Dus `LLM_PROVIDER=openrouter` uit het oude bestand won altijd, ook al stond `.env` op `claude`
+6. Dit werkte toevallig omdat OpenRouter het model `anthropic/claude-sonnet-4.5` aanriep - zelfde resultaat, omweg via OpenRouter
+7. Op 17 februari werd de OpenRouter API key ongeldig (verlopen/credits op) en faalde alles
+
+**Bijkomende problemen ontdekt:**
+
+- `alert-on-failure.sh` sourcede ook `~/.env-newsbot` (oud bestand)
+- Gmail app wachtwoord met spaties veroorzaakte bash parsing errors
+- `mail` commando niet geinstalleerd op server (alerts werkten nooit)
+- `health-check.sh` checkte op `OPENROUTER_API_KEY` en `GMAIL_ADDRESS` als "required" vars (verouderd)
+
+**Doorgevoerde fixes:**
+
+1. **Systemd service:** `EnvironmentFile` gewijzigd van `~/.env-newsbot` naar `/home/frank/apps/ai-news-bot/.env`
+2. **Alert script:** Source pad gewijzigd naar project `.env`
+3. **Systemd herlaad:** `daemon-reload` + handmatige testrun
+4. **Opruiming:** `.env-newsbot` hernoemd naar `.env-newsbot.old`
+5. **Health check:** Required vars bijgewerkt naar actuele provider (Claude/Resend)
+6. **CLAUDE.md:** Verouderde OpenRouter/Gmail referenties opgeschoond
+7. **Failsafes:** Env-consistentie check toegevoegd aan health-check en pre-deploy scripts
+
+**Geleerde lessen - Failsafes:**
+
+1. **Single Source of Truth voor env:** Nooit twee env bestanden naast elkaar houden
+2. **Systemd EnvironmentFile + load_dotenv() conflict:** `load_dotenv()` overschrijft geen bestaande vars - systemd wint altijd
+3. **Health check moet actuele stack reflecteren:** Bij provider/notifier wijzigingen ook health check updaten
+4. **Configuratie-drift detectie:** Periodiek checken of server config matcht met code verwachtingen
+
+**Git Status:**
+
+- Branch: `main`
+- Commit: `a3b6746` - fix: alert script source project .env instead of deprecated .env-newsbot
+
+---
+
 ## 2026-02-12: Feed Expansion - Social Media & Deep Tech Bronnen (30 min)
 
 **Context:** Grote uitbreiding van RSS bronnen voor bredere AI-dekking: MKB tools, PKM, creativiteit, deep tech research en kritische stemmen. Twitter/X API te duur ($200/mo), daarom migratie naar Bluesky en Mastodon social feeds.
