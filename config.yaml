@@ -29,6 +29,11 @@ news:
   # Maximum news items to fetch per source (fetch more for AI to select from)
   max_items_per_source: 10
 
+  # Deduplicatie: aantal dagen terugkijken om eerder geselecteerde items te filteren
+  # Voorkomt dat dezelfde nieuwsitems in opeenvolgende nieuwsbrieven verschijnen
+  # 0 = uitgeschakeld
+  dedup_days: 3
+
   # Note: Prompt templates are now stored in separate markdown files in the prompts/ directory
   # - prompts/stage1_selection.md: Stage 1 selection prompt
   # - prompts/stage2_summarization.md: Stage 2 summarization prompt

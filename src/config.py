@@ -165,6 +165,11 @@ class Config:
         """Maximum news items to fetch per source"""
         return self.config_data.get("news", {}).get("max_items_per_source", 5)
 
+    @property
+    def dedup_days(self) -> int:
+        """Aantal dagen terugkijken voor deduplicatie van eerder geselecteerde items. 0 = uit."""
+        return self.config_data.get("news", {}).get("dedup_days", 3)
+
     # Database configuration properties
     @property
     def database_type(self) -> str:

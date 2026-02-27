@@ -11,7 +11,7 @@ import json
 import re
 import os
 import hashlib
-from datetime import datetime
+from datetime import datetime, timedelta
 from ..logger import setup_logger
 from ..config import LANGUAGE_NAMES
 from .web_search import WebSearchTool, get_search_tool_definition
@@ -336,6 +336,92 @@ class NewsGenerator:
 
         return formatted, news_items
 
+    def _filter_recently_selected(
+        self,
+        news_items: Dict,
+        formatted_news: str,
+        news_data: Dict,
+        language: str,
+        dedup_days: int
+    ) -> tuple:
+        """
+        Filter items die al geselecteerd zijn in recente nieuwsbrieven.
+
+        Kijkt in de database naar items die in de afgelopen N dagen al
+        door de AI geselecteerd en verstuurd zijn, en verwijdert ze uit
+        de kandidatenlijst voor Stage 1.
+
+        Args:
+            news_items: Dict van news_id -> item data
+            formatted_news: Geformatteerde tekst voor Stage 1
+            news_data: Originele news_data dict (international/domestic)
+            language: Taalcode
+            dedup_days: Aantal dagen terugkijken
+
+        Returns:
+            Tuple van (filtered_formatted_news, filtered_news_items, removed_count)
+        """
+        if dedup_days <= 0:
+            return formatted_news, news_items, 0
+
+        try:
+            cutoff_date = datetime.utcnow() - timedelta(days=dedup_days)
+
+            with session_scope() as session:
+                # Haal links op van items die al geselecteerd zijn in recente succesvolle runs
+                recent_selections = session.query(NewsItem.link).join(
+                    AISelection, AISelection.news_item_id == NewsItem.id
+                ).join(
+                    NewsletterRun, NewsletterRun.id == AISelection.newsletter_run_id
+                ).filter(
+                    AISelection.selected == True,
+                    NewsletterRun.run_date >= cutoff_date,
+                    NewsletterRun.language == language,
+                    NewsletterRun.status == 'success'
+                ).all()
+
+                recently_selected_links = {row[0] for row in recent_selections}
+
+            if not recently_selected_links:
+                logger.info("Dedup: geen eerder geselecteerde items gevonden")
+                return formatted_news, news_items, 0
+
+            # Filter items waarvan de link al eerder geselecteerd was
+            filtered_items = {}
+            removed_count = 0
+            for news_id, item in news_items.items():
+                if item.get('link') in recently_selected_links:
+                    removed_count += 1
+                    logger.debug(f"Dedup: verwijderd '{item['title'][:60]}' (eerder geselecteerd)")
+                else:
+                    filtered_items[news_id] = item
+
+            if removed_count > 0:
+                logger.info(f"Dedup: {removed_count} items gefilterd (al verstuurd in afgelopen {dedup_days} dagen)")
+
+                # Herbouw formatted_news zonder gefilterde items
+                # Splits news_data opnieuw op basis van gefilterde items
+                filtered_international = [
+                    item for item in news_data.get('international', [])
+                    if item.get('link') not in recently_selected_links
+                ]
+                filtered_domestic = [
+                    item for item in news_data.get('domestic', [])
+                    if item.get('link') not in recently_selected_links
+                ]
+
+                filtered_data = {
+                    'international': filtered_international,
+                    'domestic': filtered_domestic
+                }
+                formatted_news, filtered_items = self._format_news_with_ids(filtered_data)
+
+            return formatted_news, filtered_items, removed_count
+
+        except Exception as e:
+            logger.warning(f"Dedup filter fout (items worden niet gefilterd): {e}")
+            return formatted_news, news_items, 0
+
     def generate_news_digest_from_sources(
         self,
         max_tokens: int = 8000,
@@ -378,6 +464,26 @@ class NewsGenerator:
             # Format news with unique IDs for selection
             formatted_news, news_items = self._format_news_with_ids(news_data)
             total_items = len(news_items)
+
+            # Deduplicatie: filter items die al in recente nieuwsbrieven stonden
+            from ..config import Config
+            try:
+                config = Config()
+                dedup_days = config.dedup_days
+            except Exception:
+                dedup_days = 3  # Fallback default
+
+            formatted_news, news_items, dedup_removed = self._filter_recently_selected(
+                news_items, formatted_news, news_data, language, dedup_days
+            )
+            if dedup_removed > 0:
+                total_items = len(news_items)
+                logger.info(f"Na dedup: {total_items} items over voor selectie")
+
+            if total_items == 0:
+                error_msg = f"Geen nieuwe items na deduplicatie ({dedup_removed} items gefilterd, allemaal al eerder verstuurd)"
+                logger.warning(error_msg)
+                raise Exception(error_msg)
 
             # Create newsletter run in database
             run_id = self._create_newsletter_run(language, total_items)
