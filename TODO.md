@@ -40,7 +40,11 @@
 - [x] **Wekelijks Rapport Email** (2026-02-27)
   - Script: `scripts/weekly-report.py` (--dry-run voor test)
   - Inhoud: newsletter runs, database stats, RSS health, kosten, git commits
-  - Schedule: zaterdagochtend 08:00 via systemd timer op server
+  - Schedule: maandag 08:00 Amsterdam tijd via systemd timer op server (`ai-news-bot-weekly-report.timer`)
+
+- [x] **SSH Sudo Automatisering voor Claude Code** (2026-02-27)
+  - Passwordless sudo op server voor ai-news-bot systemd units via `/etc/sudoers.d/claude-automation`
+  - Claude Code permissies: wildcard SSH + SCP in `.claude/settings.local.json` (in .gitignore)
 
 - [ ] **NewsletterRun Tracking Completeren**
   - `items_selected`, `runtime_seconds`, `stage1_tokens`, `stage2_tokens`, `total_cost` worden niet ingevuld door generator

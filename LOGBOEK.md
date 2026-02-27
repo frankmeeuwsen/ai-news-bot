@@ -1,5 +1,27 @@
 # AI News Bot - Logboek
 
+## 2026-02-27: SSH Sudo Automatisering & Weekly Report Timer (30 min)
+
+### Wat is gedaan
+
+- **SSH sudo whitelist op server:** `/etc/sudoers.d/claude-automation` aangemaakt met passwordless sudo voor specifieke systemd commando's (start/stop/restart/status op `ai-news-bot*` units en `ai-news-bot-weekly-report*` units)
+- **Claude Code permissies bijgewerkt:** `.claude/settings.local.json` uitgebreid met wildcard SSH en SCP patterns voor de Hetzner server (staat in `.gitignore`, niet in git)
+- **Weekly report systemd timer gedeployed:** `ai-news-bot-weekly-report.timer` en `ai-news-bot-weekly-report.service` op server geinstalleerd, draait elke maandag 08:00 Amsterdam tijd
+- **Getest:** Positieve tests (correcte commando's zonder sudo password) en negatieve tests (ongeautoriseerde commando's geweigerd) - alles werkt zoals verwacht
+
+### Technische Details
+
+- Sudoers whitelist beperkt tot specifieke systemd unit namen (geen root shell, geen algemene sudo)
+- Timer configuratie: `OnCalendar=Mon *-*-* 08:00:00`, timezone Amsterdam, `Persistent=true`
+- TODO.md bijgewerkt: SSH sudo automatisering als afgerond gemarkeerd, weekly report timer correctie (maandag ipv zaterdag)
+
+### Open Items
+
+- [ ] NewsletterRun tracking completeren (items_selected, runtime_seconds etc. worden niet ingevuld)
+- [ ] Deployment Smoke Tests
+
+---
+
 ## 2026-02-17: Server Failure - Dubbele .env Bestanden & Verouderde Config
 
 **Context:** Nieuwsbot faalde op 17 februari met `401 - User not found` van OpenRouter. Er was niets gewijzigd aan code of server. Laatste succesvolle run: 16 februari 06:00 UTC.
