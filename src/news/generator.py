@@ -10,6 +10,7 @@ from typing import List, Optional, Dict, Tuple
 import json
 import re
 import os
+import time
 import hashlib
 from datetime import datetime, timedelta
 from ..logger import setup_logger
@@ -218,7 +219,7 @@ class NewsGenerator:
         except Exception as e:
             logger.error(f"Error updating run Stage 2: {e}", exc_info=True)
 
-    def _complete_run(self, run_id: int, status: str, error: str = None, runtime: float = None):
+    def _complete_run(self, run_id: int, status: str, error: str = None, runtime: float = None, items_summarized: int = None):
         """
         Mark newsletter run als compleet.
 
@@ -227,6 +228,7 @@ class NewsGenerator:
             status: Status (success/failed)
             error: Error message (indien gefaald)
             runtime: Runtime in seconden
+            items_summarized: Aantal items dat succesvol samengevat is
         """
         try:
             with session_scope() as session:
@@ -235,6 +237,8 @@ class NewsGenerator:
                     run.status = status
                     run.error_message = error
                     run.runtime_seconds = runtime
+                    if items_summarized is not None:
+                        run.items_summarized = items_summarized
 
             runtime_str = f"{runtime:.2f}s" if runtime is not None else "unknown"
             logger.info(f"Completed run #{run_id}: status={status}, runtime={runtime_str}")
@@ -448,6 +452,8 @@ class NewsGenerator:
         Raises:
             Exception: If fetching or generation fails
         """
+        start_time = time.time()
+
         try:
             # Fetch real-time news
             logger.info("Fetching real-time AI news from sources...")
@@ -506,10 +512,21 @@ class NewsGenerator:
             )
 
             messages = [{"role": "user", "content": selection_prompt}]
-            selection_response = self.provider.generate(
+            stage1_result = self.provider.generate(
                 messages=messages,
-                max_tokens=4000 # give enough tokens for selection
+                max_tokens=4000,  # give enough tokens for selection
+                return_usage=True
             )
+
+            # Extract text en usage data (veilig: werkt ook als provider geen dict teruggeeft)
+            if isinstance(stage1_result, dict):
+                selection_response = stage1_result['text']
+                stage1_usage = stage1_result.get('usage', {})
+                stage1_cost = stage1_result.get('cost', 0.0)
+            else:
+                selection_response = stage1_result
+                stage1_usage = {}
+                stage1_cost = 0.0
 
             # Parse selected IDs
             json_match = re.search(r'\[[\s\S]*?\]', selection_response)
@@ -538,6 +555,16 @@ class NewsGenerator:
 
             logger.info(f"Stage 1 completed: Selected {len(selected_ids)} news items")
             logger.debug(f"Selected IDs: {selected_ids}")
+
+            # Track Stage 1 metrics in database
+            stage1_prompt_hash = self._hash_prompt(selection_prompt)
+            self._update_run_stage1(
+                run_id=run_id,
+                prompt_hash=stage1_prompt_hash,
+                tokens=stage1_usage.get('total_tokens', 0),
+                cost=stage1_cost,
+                items_selected=len(selected_ids)
+            )
 
             # ============================================================
             # STAGE 2: Summarization - Create detailed summaries
@@ -574,13 +601,33 @@ class NewsGenerator:
 
             # Execute Stage 2: Generate detailed summaries
             messages = [{"role": "user", "content": summarization_prompt}]
-            response_text = self.provider.generate(
+            stage2_result = self.provider.generate(
                 messages=messages,
-                max_tokens=max_tokens
+                max_tokens=max_tokens,
+                return_usage=True
             )
+
+            # Extract text en usage data
+            if isinstance(stage2_result, dict):
+                response_text = stage2_result['text']
+                stage2_usage = stage2_result.get('usage', {})
+                stage2_cost = stage2_result.get('cost', 0.0)
+            else:
+                response_text = stage2_result
+                stage2_usage = {}
+                stage2_cost = 0.0
 
             logger.info("Stage 2 completed: News digest generated successfully")
             logger.debug(f"Response length: {len(response_text)} characters")
+
+            # Track Stage 2 metrics in database
+            stage2_prompt_hash = self._hash_prompt(summarization_prompt)
+            self._update_run_stage2(
+                run_id=run_id,
+                prompt_hash=stage2_prompt_hash,
+                tokens=stage2_usage.get('total_tokens', 0),
+                cost=stage2_cost
+            )
 
             # ============================================================
             # PARSE & SAVE: Extract structured data and save to database
@@ -649,10 +696,11 @@ class NewsGenerator:
 
             logger.info(f"Saved {summaries_saved}/{len(parsed_summaries)} summaries to database")
 
-            # Update run status
-            self._complete_run(run_id, 'success')
+            # Update run status met runtime en items_summarized
+            runtime = time.time() - start_time
+            self._complete_run(run_id, 'success', runtime=runtime, items_summarized=summaries_saved)
 
-            logger.info(f"Two-stage prompt chaining completed: {total_items} items → {len(selected_ids)} selected → {summaries_saved} summaries saved")
+            logger.info(f"Two-stage prompt chaining completed: {total_items} items → {len(selected_ids)} selected → {summaries_saved} summaries saved (runtime: {runtime:.1f}s)")
 
             return run_id
 
@@ -660,5 +708,6 @@ class NewsGenerator:
             logger.error(f"Failed to generate news digest from sources: {str(e)}", exc_info=True)
             # Mark run as failed if we have run_id
             if 'run_id' in locals():
-                self._complete_run(run_id, 'failed', str(e))
+                runtime = time.time() - start_time
+                self._complete_run(run_id, 'failed', str(e), runtime=runtime)
             raise

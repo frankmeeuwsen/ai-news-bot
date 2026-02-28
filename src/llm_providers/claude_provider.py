@@ -2,7 +2,7 @@
 Claude Provider - Anthropic Claude API implementation
 """
 import os
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 from anthropic import Anthropic
 from .base_provider import BaseLLMProvider
 from ..logger import setup_logger
@@ -48,26 +48,28 @@ class ClaudeProvider(BaseLLMProvider):
         messages: List[Dict[str, str]],
         max_tokens: int = 2000,
         temperature: float = 1.0,
+        return_usage: bool = False,
         **kwargs
-    ) -> str:
+    ) -> Union[str, Dict[str, Any]]:
         """
         Generate a response using Claude API.
-        
+
         Args:
             messages: List of message dicts with 'role' and 'content' keys
             max_tokens: Maximum tokens in response
             temperature: Sampling temperature
+            return_usage: If True, return dict met text + usage data
             **kwargs: Additional Claude-specific parameters
-            
+
         Returns:
-            Generated text response
-            
+            Generated text response, of dict met 'text' en 'usage' keys
+
         Raises:
             Exception: If API call fails
         """
         try:
             logger.debug(f"Calling Claude API with {len(messages)} messages")
-            
+
             response = self.client.messages.create(
                 model=self.model,
                 max_tokens=max_tokens,
@@ -75,17 +77,71 @@ class ClaudeProvider(BaseLLMProvider):
                 messages=messages,
                 **kwargs
             )
-            
+
             # Extract text from response
+            text = None
             for block in response.content:
                 if block.type == "text":
-                    return block.text
-            
-            raise Exception("No text response received from Claude")
-            
+                    text = block.text
+                    break
+
+            if text is None:
+                raise Exception("No text response received from Claude")
+
+            # Return met usage data als gevraagd
+            if return_usage:
+                usage = {
+                    'prompt_tokens': response.usage.input_tokens if response.usage else 0,
+                    'completion_tokens': response.usage.output_tokens if response.usage else 0,
+                    'total_tokens': (
+                        (response.usage.input_tokens + response.usage.output_tokens)
+                        if response.usage else 0
+                    ),
+                }
+                cost = self._calculate_cost(usage, self.model)
+
+                return {
+                    'text': text,
+                    'usage': usage,
+                    'cost': cost,
+                    'model': self.model
+                }
+
+            return text
+
         except Exception as e:
             logger.error(f"Claude API error: {str(e)}", exc_info=True)
             raise
+
+    def _calculate_cost(self, usage: Dict[str, int], model: str) -> float:
+        """
+        Bereken kosten op basis van Anthropic pricing.
+
+        Claude Sonnet 4.5: $3/1M input, $15/1M output
+        Claude Sonnet 3.5: $3/1M input, $15/1M output
+        Claude Haiku 3.5:  $0.80/1M input, $4/1M output
+
+        Args:
+            usage: Dict met prompt_tokens en completion_tokens
+            model: Model naam
+
+        Returns:
+            Geschatte kosten in dollars
+        """
+        # Pricing per 1M tokens (input, output)
+        pricing = {
+            'claude-sonnet-4-5-20250929': (3.0, 15.0),
+            'claude-sonnet-4-20250514': (3.0, 15.0),
+            'claude-haiku-4-5-20251001': (0.80, 4.0),
+        }
+
+        # Default naar Sonnet pricing als model onbekend is
+        input_price, output_price = pricing.get(model, (3.0, 15.0))
+
+        input_cost = (usage.get('prompt_tokens', 0) / 1_000_000) * input_price
+        output_cost = (usage.get('completion_tokens', 0) / 1_000_000) * output_price
+
+        return input_cost + output_cost
     
     def generate_with_tools(
         self,
