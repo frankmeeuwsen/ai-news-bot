@@ -54,7 +54,7 @@ Het probleem bleek een **configuratie-divergentie** die maanden onopgemerkt blee
 
 **Doorgevoerde fixes:**
 
-1. **Systemd service:** `EnvironmentFile` gewijzigd van `~/.env-newsbot` naar `/home/frank/apps/ai-news-bot/.env`
+1. **Systemd service:** `EnvironmentFile` gewijzigd van `~/.env-newsbot` naar `/home/<user>/apps/ai-news-bot/.env`
 2. **Alert script:** Source pad gewijzigd naar project `.env`
 3. **Systemd herlaad:** `daemon-reload` + handmatige testrun
 4. **Opruiming:** `.env-newsbot` hernoemd naar `.env-newsbot.old`
@@ -454,7 +454,7 @@ onderwerp: AI-systemen krijgen onterecht menselijke eigenschappen toegeschreven
    - Aangemaakt: `scripts/sync-db.sh`
    - Functionaliteit: SCP download van `newsbot.db` van Hetzner server
    - Lokaal pad: `data/newsbot.db` (overschrijft bestaande database)
-   - SSH: Via `~/.ssh/dtd_rsync` key
+   - SSH: Via `~/.ssh/<deploy_key>` key
 
 2. **Launchd Agent**
    - Aangemaakt: `~/Library/LaunchAgents/nl.frankmeeuwsen.ai-news-bot-sync.plist`
@@ -471,7 +471,7 @@ onderwerp: AI-systemen krijgen onterecht menselijke eigenschappen toegeschreven
 
 **Technische Details:**
 
-- SCP commando: `scp -i ~/.ssh/dtd_rsync frank@116.203.122.56:/home/frank/apps/ai-news-bot/data/newsbot.db data/`
+- SCP commando: `scp -i ~/.ssh/<deploy_key> <user>@<SERVER_IP>:/home/<user>/apps/ai-news-bot/data/newsbot.db data/`
 - Launchd: `StartCalendarInterval` met Hour=8, Minute=0
 - Executable bit: `chmod +x scripts/sync-db.sh`
 - Launchd load: `launchctl load ~/Library/LaunchAgents/nl.frankmeeuwsen.ai-news-bot-sync.plist`
@@ -486,7 +486,7 @@ onderwerp: AI-systemen krijgen onterecht menselijke eigenschappen toegeschreven
 
 - Launchd agent boven cron voor macOS compatibility
 - Overschrijven lokale database acceptabel (dev environment)
-- SSH key hergebruik (`dtd_rsync`) voor consistency
+- SSH key hergebruik (deploy key) voor consistency
 - Eén uur delay tussen newsletter run en sync
 
 **Git Status:**
@@ -540,8 +540,8 @@ onderwerp: AI-systemen krijgen onterecht menselijke eigenschappen toegeschreven
 **Technische Details:**
 
 - Forgejo Secret: `SSH_PRIVATE_KEY` (base64 encoded)
-- Server: `frank@116.203.122.56`
-- Deploy pad: `/home/frank/apps/ai-news-bot`
+- Server: `<user>@<SERVER_IP>`
+- Deploy pad: `/home/<user>/apps/ai-news-bot`
 - Service restart: `sudo systemctl restart ai-news-bot.service`
 
 **Belangrijke Beslissingen:**
@@ -585,10 +585,10 @@ onderwerp: AI-systemen krijgen onterecht menselijke eigenschappen toegeschreven
 **Server Setup:**
 
 1. **Server Details**
-   - Host: `116.203.122.56` (Hetzner)
+   - Host: `<SERVER_IP>` (Hetzner)
    - User: `frank` (sudo)
    - OS: Ubuntu 20.04 (Python 3.8)
-   - Locatie: `/home/frank/apps/ai-news-bot`
+   - Locatie: `/home/<user>/apps/ai-news-bot`
 
 2. **Systemd Configuratie**
    - Service: `/etc/systemd/system/ai-news-bot.service`
@@ -772,7 +772,7 @@ onderwerp: AI-systemen krijgen onterecht menselijke eigenschappen toegeschreven
 
 - Monitoring eerste Resend delivery morgenochtend
 - Eventueel Gmail variabelen verwijderen uit server .env
-- Domein verificatie in Resend (optioneel, voor `nieuws@frankmeeuwsen.com`)
+- Domein verificatie in Resend (optioneel, voor custom domein)
 
 ---
 

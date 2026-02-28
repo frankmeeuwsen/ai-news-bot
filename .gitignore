@@ -60,3 +60,6 @@ htmlcov/
 CLAUDE.md
 agents.md
 gemini.md
+
+# Examples (may contain personal data)
+examples/

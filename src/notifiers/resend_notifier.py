@@ -31,7 +31,7 @@ class ResendNotifier:
         All parameters default to environment variables if not provided.
         """
         self.api_key = api_key or os.getenv("RESEND_API_KEY")
-        self.email_from = email_from or os.getenv("RESEND_FROM", "nieuws@frankmeeuwsen.com")
+        self.email_from = email_from or os.getenv("RESEND_FROM")
         self.email_to = email_to or os.getenv("EMAIL_TO")
 
         if not all([self.api_key, self.email_from, self.email_to]):

@@ -106,7 +106,7 @@ Als je de logs live wilt volgen tijdens de run, gebruik een apart terminal tabbl
 sudo systemctl start ai-news-bot.service
 
 # Tabblad 2: Volg de logs
-ssh -i ~/.ssh/dtd_rsync frank@116.203.122.56
+ssh -i ~/.ssh/<deploy_key> frank@<SERVER_IP>
 tail -f ~/apps/ai-news-bot/logs/output.log
 ```
 

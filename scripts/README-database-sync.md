@@ -82,10 +82,10 @@ tail -f logs/db-sync.log
 
 ```bash
 # Check SSH connectie naar server
-ssh dtd "ls -lh /home/frank/apps/ai-news-bot/data/newsbot.db"
+ssh dtd "ls -lh /home/<user>/apps/ai-news-bot/data/newsbot.db"
 
 # Check of bestand bestaat op server
-scp dtd:/home/frank/apps/ai-news-bot/data/newsbot.db /tmp/test.db
+scp dtd:/home/<user>/apps/ai-news-bot/data/newsbot.db /tmp/test.db
 
 # Check logs
 cat logs/launchd-sync-stderr.log
@@ -143,9 +143,9 @@ Het script gebruikt de SSH alias `dtd` (gedefinieerd in `~/.ssh/config`):
 
 ```
 Host dtd
-    HostName 116.203.122.56
-    User frank
-    IdentityFile ~/.ssh/dtd_rsync
+    HostName <SERVER_IP>
+    User <user>
+    IdentityFile ~/.ssh/<deploy_key>
 ```
 
 Als je SSH setup wijzigt, pas dan ook `scripts/sync-database.sh` aan.
