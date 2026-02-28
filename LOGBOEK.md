@@ -1,5 +1,45 @@
 # AI News Bot - Logboek
 
+## 2026-02-28: Security Audit & README Herschreven - Repo Publiek (80 min)
+
+### Wat is gedaan
+
+- **Security audit voor publieke GitHub repo:** Gevoelige bestanden en data uit git verwijderd
+  - `CLAUDE.md`, `gemini.md`, `agents.md` uit git tracking gehaald (bevatten server IP, SSH paden)
+  - `examples/` directory verwijderd (HTML met persoonlijke emailadressen)
+  - `.gitignore` bijgewerkt met `examples/`
+  - Server IP, SSH key paden en server paden gescrubbed uit `LOGBOEK.md`, `TROUBLESHOOTING.md`, `scripts/README-database-sync.md`
+  - Forgejo deploy workflow: hardcoded IP/user vervangen door `${{ secrets.SERVER_HOST }}` en `${{ secrets.SERVER_USER }}`
+  - `StrictHostKeyChecking=no` verwijderd uit deploy workflow
+  - Hardcoded email default verwijderd uit `resend_notifier.py`
+
+- **SSH key management:** Nieuwe deploy key (`dtd_deploy_new`) aangemaakt maar bleek overbodig. Bestaande `forgejo_deploy_key` werkte al correct. Oude `dtd_rsync` key was per ongeluk van server verwijderd en hersteld.
+
+- **Forgejo secrets geconfigureerd:** `SERVER_HOST` en `SERVER_USER` als repository secrets toegevoegd.
+
+- **README.md volledig herschreven** naar actuele staat van het project:
+  - Two-stage AI pipeline beschreven
+  - Accurate projectstructuur
+  - CLI opties, database schema, scripts overzicht
+  - Drie deployment opties (Hetzner systemd, GitHub Actions, lokaal)
+  - Credits naar originele fork
+
+- **GitHub repo publiek gemaakt** - project is nu open source.
+
+### Commits
+
+- `4842285` - chore: security audit - scrub sensitive data before making repo public
+- `703b9a5` - docs: rewrite README.md to reflect current project state
+- Beide commits gepusht naar origin (Forgejo) en github
+
+### Open Items
+
+- [ ] NewsletterRun tracking completeren
+- [ ] Deployment Smoke Tests
+- [ ] Verify Forgejo deploy workflow werkt met nieuwe secrets
+
+---
+
 ## 2026-02-27: SSH Sudo Automatisering & Weekly Report Timer (30 min)
 
 ### Wat is gedaan
