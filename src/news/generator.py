@@ -646,6 +646,7 @@ class NewsGenerator:
 
             # Save each summary to database
             summaries_saved = 0
+            seen_item_ids = set()  # Track al verwerkte news items om duplicaten te voorkomen
             with session_scope() as session:
                 for summary_dict in parsed_summaries:
                     try:
@@ -656,6 +657,21 @@ class NewsGenerator:
 
                         if not news_item:
                             logger.warning(f"No NewsItem found for URL: {summary_dict['source_url']}")
+                            continue
+
+                        # Skip duplicaten: zelfde news item al verwerkt in deze run
+                        if news_item.id in seen_item_ids:
+                            logger.info(f"Skipping duplicate news item {news_item.id} for '{summary_dict.get('title', 'unknown')}'")
+                            continue
+                        seen_item_ids.add(news_item.id)
+
+                        # Check of er al een selectie bestaat in de database
+                        existing = session.query(AISelection).filter(
+                            AISelection.news_item_id == news_item.id,
+                            AISelection.newsletter_run_id == run_id
+                        ).first()
+                        if existing:
+                            logger.info(f"Selection already exists for news item {news_item.id}, skipping")
                             continue
 
                         # Create AISelection record
@@ -692,6 +708,7 @@ class NewsGenerator:
 
                     except Exception as e:
                         logger.error(f"Error saving summary '{summary_dict.get('title', 'unknown')}': {e}")
+                        session.rollback()  # Reset sessie zodat volgende saves niet ook falen
                         continue
 
             logger.info(f"Saved {summaries_saved}/{len(parsed_summaries)} summaries to database")
