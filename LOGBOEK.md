@@ -1,5 +1,36 @@
 # AI News Bot - Logboek
 
+## 2026-03-01: Newsletter Crash Fix & Forgejo Deploy Pipeline Fix (35 min)
+
+### Wat is gedaan
+
+- **Newsletter crash run #63 gefixt** (`src/news/generator.py`)
+  - Oorzaak: duplicate `news_item_id` in `ai_selections` tabel vergiftigde de database sessie
+  - Fix: duplicaat-detectie met `seen_item_ids` set + database check voor insert
+  - Fix: `session.rollback()` bij errors zodat verdere saves kunnen doorgaan
+  - Run #64 succesvol gedraaid, email verstuurd
+
+- **Forgejo deploy pipeline gefixt** (`.forgejo/workflows/deploy.yml`)
+  - Pipeline faalde sinds 28 feb door incorrect `SSH_PRIVATE_KEY` secret
+  - Oorzaak: whitespace/newlines bij plakken van key in Forgejo UI
+  - Debugged met SSH verbose logging vanuit Docker container
+  - Opgelost door key via `pbcopy` opnieuw in te voeren in Forgejo UI
+  - Runs #65 en #66 succesvol
+
+- **Alle remotes in sync** - Forgejo (origin), GitHub en server staan op commit `bc5f54a`
+
+### Bestanden Gewijzigd
+
+- `src/news/generator.py` - duplicate AISelection fix
+- `.forgejo/workflows/deploy.yml` - debug logging toegevoegd en na fix verwijderd
+
+### Open Items
+
+- [ ] NewsletterRun tracking completeren
+- [ ] Deployment Smoke Tests
+
+---
+
 ## 2026-02-28: Security Audit & README Herschreven - Repo Publiek (80 min)
 
 ### Wat is gedaan
